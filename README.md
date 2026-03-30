@@ -9,14 +9,13 @@ Production-ready starter for your team using:
 - Prisma ORM
 - NextAuth.js v5 (beta)
 
-This repo already implements **P3 Integration**:
+This repo already implements the integration foundation:
 - Auth system
 - Dashboard layout
 - Admin panel
 - Deploy + Git workflow
 
-The full folder structure for P1/P2/P3 is already prepared and documented in
-`docs/PROJECT_STRUCTURE.md`.
+The long-term project structure is documented in `docs/PROJECT_STRUCTURE.md`.
 
 ## 1) Prerequisites
 
@@ -71,13 +70,17 @@ Notes:
 - `GET|POST /api/auth/[...nextauth]`
 - `POST|DELETE /api/admin/courses`
 
-## 5) Team Ownership Convention
+## 5) Branch Workflow
 
-- P1 area: `src/features/p1-frontend`
-- P2 area: `src/features/p2-backend`
-- P3 area: `src/features/p3-integration`
+Ownership is branch-based, not folder-based:
 
-Each team starts in its own folder and moves shared code only when needed.
+- `main`: stable branch
+- `sadik`: personal working branch
+- `sabri`: personal working branch
+- `jaffal`: personal working branch
+
+The repo structure stays feature/domain-based so it does not need to change
+when teammates change.
 
 ## 6) Git Workflow
 

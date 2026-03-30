@@ -1,10 +1,14 @@
-# Feature Ownership
+# Features
 
-This project keeps team ownership under `src/features`:
+This directory is feature-based, not team-based.
 
-- `p1-frontend/*`: UI and user-facing pages.
-- `p2-backend/*`: API, data, and integration services.
-- `p3-integration/*`: auth, dashboard shell, admin controls, deploy flow.
+Examples:
+- `src/features/auth`
+- `src/features/admin`
+- `src/features/dashboard`
+- `src/features/courses`
 
-Rule: new feature code starts in its owner folder, then shared code can move to
-`src/components/shared` or `src/lib` once stable.
+Rule:
+- use git branches for teammate ownership
+- use `src/features/<feature-name>` for code organization
+- move only reused pieces to `src/components/shared` or `src/lib`

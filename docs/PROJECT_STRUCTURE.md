@@ -1,4 +1,4 @@
-# Project Structure (Team Standard)
+# Project Structure (Stable Standard)
 
 ```text
 .
@@ -27,9 +27,7 @@
 │   │   └── shared/
 │   ├── config/
 │   ├── features/
-│   │   ├── p1-frontend/
-│   │   ├── p2-backend/
-│   │   └── p3-integration/
+│   │   └── <feature-name>/
 │   ├── hooks/
 │   ├── lib/
 │   ├── styles/
@@ -39,6 +37,8 @@
 ```
 
 Guidelines:
-- Put business logic inside the owning team folder under `src/features/*`.
+- Use `src/features/<feature-name>` for product domains such as `auth`,
+  `admin`, `courses`, `lessons`, or `community`.
 - Keep App Router files thin and call feature modules.
 - Promote shared utilities to `src/lib` or `src/components/shared` only after reuse.
+- Ownership is handled by git branches and PRs, not by person/team folders in the repo.

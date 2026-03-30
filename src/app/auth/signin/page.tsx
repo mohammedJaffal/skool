@@ -9,6 +9,9 @@ type SignInPageProps = {
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await auth();
+  const githubConfigured = Boolean(
+    process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET,
+  );
 
   if (session?.user) {
     redirect("/dashboard");
@@ -28,19 +31,26 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           NextAuth v5 is configured with GitHub provider and Prisma sessions.
         </p>
 
-        <form
-          action={async () => {
-            "use server";
-            await signIn("github", { redirectTo: callbackUrl });
-          }}
-        >
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+        {githubConfigured ? (
+          <form
+            action={async () => {
+              "use server";
+              await signIn("github", { redirectTo: callbackUrl });
+            }}
           >
-            Continue With GitHub
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Continue With GitHub
+            </button>
+          </form>
+        ) : (
+          <div className="rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-3 text-sm text-[color:var(--muted)]">
+            GitHub OAuth is not configured yet. Add `AUTH_GITHUB_ID` and
+            `AUTH_GITHUB_SECRET` to enable sign-in.
+          </div>
+        )}
       </article>
     </section>
   );
