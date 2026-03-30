@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skool - Team Foundation
 
-## Getting Started
+Production-ready starter for your team using:
 
-First, run the development server:
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- PostgreSQL (local)
+- Prisma ORM
+- NextAuth.js v5 (beta)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This repo already implements **P3 Integration**:
+- Auth system
+- Dashboard layout
+- Admin panel
+- Deploy + Git workflow
+
+The full folder structure for P1/P2/P3 is already prepared and documented in
+`docs/PROJECT_STRUCTURE.md`.
+
+## 1) Prerequisites
+
+- Node.js 20+
+- npm 10+
+- PostgreSQL running locally
+- Git
+
+Optional for auth provider:
+- GitHub OAuth app credentials
+
+## 2) Installation (Fresh Machine)
+
+1. Clone:
+   - `git clone <your-repo-url>`
+   - `cd skool`
+2. Install packages:
+   - `npm install`
+3. Create env file:
+   - `cp .env.example .env`
+4. Set your local Postgres URL inside `.env`.
+5. Generate Prisma client:
+   - `npm run prisma:generate`
+6. Run database migration:
+   - `npm run prisma:migrate -- --name init`
+7. Start development server:
+   - `npm run dev`
+8. Open:
+   - [http://localhost:3000](http://localhost:3000)
+
+If migration fails, confirm PostgreSQL is running and the database exists.
+
+## 3) Required Environment Variables
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/skool?schema=public"
+AUTH_SECRET="replace-with-long-random-secret"
+AUTH_GITHUB_ID=""
+AUTH_GITHUB_SECRET=""
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Notes:
+- `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` are needed for GitHub sign-in.
+- For production, use secure secrets and managed PostgreSQL.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4) P3 Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `GET /auth/signin`
+- `GET /dashboard`
+- `GET /dashboard/admin`
+- `GET /dashboard/deploy`
+- `GET|POST /api/auth/[...nextauth]`
+- `POST|DELETE /api/admin/courses`
 
-## Learn More
+## 5) Team Ownership Convention
 
-To learn more about Next.js, take a look at the following resources:
+- P1 area: `src/features/p1-frontend`
+- P2 area: `src/features/p2-backend`
+- P3 area: `src/features/p3-integration`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Each team starts in its own folder and moves shared code only when needed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 6) Git Workflow
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Reference:
+- `docs/workflows/git-flow.md`
+- `docs/workflows/review-checklist.md`
