@@ -79,27 +79,27 @@ Validation:
 P3 starts first.
 
 ### 1. Auth and Route Protection Pass
-- [ ] Verify auth config and auth routes
-- [ ] Verify protected dashboard behavior
-- [ ] Fix auth or redirect issues found during integration
+- [x] Verify auth config and auth routes
+- [x] Verify protected dashboard behavior
+- [x] Fix auth or redirect issues found during integration
 - Done means: login and protected routes work consistently across the main dashboard flow.
 
 ### 2. Dashboard Layout
-- [ ] Sidebar
-- [ ] Top navigation
-- [ ] Shared layout connects current sprint pages
+- [x] Sidebar
+- [x] Top navigation
+- [x] Shared layout connects current sprint pages
 - Done means: main dashboard pages use one consistent shell without route-level breaks.
 
 ### 3. Admin Panel
-- [ ] Manage courses UI
-- [ ] `POST` course flow
-- [ ] `DELETE` course flow
+- [x] Manage courses UI
+- [x] `POST` course flow
+- [x] `DELETE` course flow
 - Done means: admin can create and remove courses from the panel and the page remains usable after integration.
 
 ### 4. Integration, Review, and Deploy Pass
 - [ ] Integrate accepted P1 and P2 work into the shared flow
 - [ ] Run branch review and merge checks
-- [ ] Keep deploy checklist and branch workflow current
+- [x] Keep deploy checklist and branch workflow current
 - Done means: accepted work can be reviewed, merged, and prepared for deployment without confusion.
 
 Validation:
