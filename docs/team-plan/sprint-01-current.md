@@ -44,28 +44,28 @@ Validation:
 ## P2 - Backend - Sabri
 
 ### 1. Core Data Foundation
-- [ ] Add first schema for courses, lessons, enrollments, and posts
+- [ ] Add first schema for courses, lessons, enrollments, posts, and comments
 - [ ] Create migration for the new schema
 - [ ] Prepare stable model names and field names for the team
 - Done means: the database structure needed by Sprint 01 features exists and is shared clearly.
 
-### 2. Courses and Lessons API
+### 2. Courses and Lessons Foundation API
 - [ ] `GET /courses`
 - [ ] `GET /lessons/:id`
 - [ ] Stable response shapes for frontend
 - Done means: frontend can fetch course lists and lesson details without guessing field names.
 
-### 3. Community and Enroll API
+### 3. Community Foundation API
 - [ ] `GET /posts`
 - [ ] `POST /posts`
-- [ ] `POST /enroll`
-- Done means: community creation/listing and fake enroll flow have working backend support.
+- [ ] Prepare comment-ready payload structure for Sprint 02
+- Done means: the first community feed API exists and is stable enough for frontend integration.
 
-### 4. Utility API
-- [ ] `GET /users`
-- [ ] `GET /notifications`
-- [ ] `GET /courses?q=`
-- Done means: supporting APIs for members, notifications, and course search are usable and predictable.
+### 4. Shared Foundation Contracts
+- [ ] Publish example payloads for courses, lessons, and posts
+- [ ] Define enroll request/response contract for Sprint 02
+- [ ] Confirm route names and field names with P1 and P3
+- Done means: the team can keep building against stable backend contracts before full integration.
 
 Validation:
 - Branch: `sabri`
@@ -90,16 +90,15 @@ P3 starts first.
 - [x] Shared layout connects current sprint pages
 - Done means: main dashboard pages use one consistent shell without route-level breaks.
 
-### 3. Admin Panel
-- [x] Manage courses UI
-- [x] `POST` course flow
-- [x] `DELETE` course flow
-- Done means: admin can create and remove courses from the panel and the page remains usable after integration.
-
-### 4. Integration, Review, and Deploy Pass
-- [ ] Integrate accepted P1 and P2 work into the shared flow
-- [ ] Run branch review and merge checks
+### 3. Review and Deploy Foundation
 - [x] Keep deploy checklist and branch workflow current
+- [x] Prepare branch review flow for incoming P1 and P2 work
+- [x] Keep shared routes and layout ready for incoming P1 and P2 pages
+- Done means: P3 is ready to validate, merge, and stabilize incoming Sprint 01 work.
+
+### 4. Sprint 01 Acceptance Gate
+- [ ] Run branch review and merge checks
+- [ ] Integrate accepted P1 and P2 work into the shared flow
 - Done means: accepted work can be reviewed, merged, and prepared for deployment without confusion.
 
 Validation:
@@ -108,3 +107,16 @@ Validation:
 - Review date:
 - Result:
 - Merge status:
+
+## Deferred From Sprint 01
+
+- `GET /users`
+  Moved to Sprint 02 with the first members area.
+- `POST /enroll` as a usable backend flow
+  Moved to Sprint 02 when the enroll path becomes connected end-to-end.
+- `GET /courses?q=`
+  Deferred until core course navigation is stable; this is not a foundation requirement.
+- `GET /notifications`
+  Deferred to later as a stretch feature; it is not part of Sprint 01 foundation.
+- Full admin product scope
+  Deferred to later sprints; the current admin page is internal scaffolding, not a Sprint 01 acceptance requirement.

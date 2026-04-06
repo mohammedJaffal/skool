@@ -19,10 +19,15 @@
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── admin/page.tsx
+│   │   │   ├── community/page.tsx
+│   │   │   ├── checkout/page.tsx
+│   │   │   ├── courses/page.tsx
+│   │   │   └── courses/[courseId]/lessons/[lessonId]/page.tsx
 │   │   │   └── deploy/page.tsx
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
+│   │   ├── admin/
 │   │   ├── layout/
 │   │   └── shared/
 │   ├── config/
@@ -39,6 +44,8 @@
 Guidelines:
 - Use `src/features/<feature-name>` for product domains such as `auth`,
   `admin`, `courses`, `lessons`, or `community`.
+- Keep shared route scaffolding stable so teammate branches can plug feature work
+  into existing pages instead of inventing new paths.
 - Keep App Router files thin and call feature modules.
 - Promote shared utilities to `src/lib` or `src/components/shared` only after reuse.
 - Ownership is handled by git branches and PRs, not by person/team folders in the repo.
