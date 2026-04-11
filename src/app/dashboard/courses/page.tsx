@@ -1,28 +1,42 @@
-export default function CoursesPage() {
-  const courses = [
-    { id: "1", title: "React Fundamentals", description: "Learn React from scratch", instructor: "John Doe", lessons: 12 },
-    { id: "2", title: "Next.js 15 Deep Dive", description: "Master the App Router", instructor: "Jane Smith", lessons: 8 },
-    { id: "3", title: "TypeScript Essentials", description: "Type-safe JavaScript", instructor: "Bob Johnson", lessons: 10 },
-    { id: "4", title: "Tailwind CSS Mastery", description: "Build beautiful UIs fast", instructor: "Alice Brown", lessons: 6 },
-  ];
+import Link from "next/link";
+import { COURSES } from "@/lib/mock-data";
 
+const levelColor: Record<string, string> = {
+  Beginner: "bg-green-100 text-green-700",
+  Intermediate: "bg-yellow-100 text-yellow-700",
+  Advanced: "bg-red-100 text-red-700",
+};
+
+export default function CoursesPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Courses</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.map((course) => (
-          <a
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold">Courses</h1>
+        <p className="text-sm text-gray-500 mt-1">{COURSES.length} courses available</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {COURSES.map((course) => (
+          <Link
             key={course.id}
             href={`/dashboard/courses/${course.id}`}
-            className="block border rounded-xl p-5 hover:shadow-md transition bg-white"
+            className="block rounded-2xl border border-gray-200 bg-white p-5 hover:border-gray-400 hover:shadow-md transition"
           >
-            <h2 className="text-lg font-semibold mb-1">{course.title}</h2>
-            <p className="text-gray-500 text-sm mb-3">{course.description}</p>
-            <div className="text-sm text-gray-400">
-              <span>👤 {course.instructor}</span>
-              <span className="ml-4">📚 {course.lessons} lessons</span>
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <h2 className="text-base font-semibold leading-snug">{course.title}</h2>
+              <span className={`shrink-0 rounded-lg px-2 py-0.5 text-xs font-semibold ${levelColor[course.level] ?? "bg-gray-100 text-gray-600"}`}>
+                {course.level}
+              </span>
             </div>
-          </a>
+            <p className="text-sm text-gray-500 mb-4 line-clamp-2">{course.description}</p>
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span>👤 {course.instructor}</span>
+              <span>📚 {course.lessons.length} lessons · ⏱ {course.duration}</span>
+            </div>
+            <div className="mt-3 border-t border-gray-100 pt-3 flex items-center justify-between">
+              <span className="text-sm font-bold">${course.price}</span>
+              <span className="text-xs text-gray-500 hover:text-black transition">View course →</span>
+            </div>
+          </Link>
         ))}
       </div>
     </div>

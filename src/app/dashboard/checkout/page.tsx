@@ -1,23 +1,56 @@
-import { FoundationPlaceholder } from "@/components/shared/foundation-placeholder";
+import Link from "next/link";
+import { COURSES } from "@/lib/mock-data";
+import { EnrollForm } from "@/components/checkout/enroll-form";
 
-export default function CheckoutPage() {
+type CheckoutPageProps = {
+  searchParams: Promise<{ courseId?: string }>;
+};
+
+export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
+  const { courseId } = await searchParams;
+  const course = COURSES.find((c) => c.id === courseId);
+
+  if (!course) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Checkout</h1>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center space-y-3">
+          <p className="text-gray-500 text-sm">No course selected.</p>
+          <Link
+            href="/dashboard/courses"
+            className="inline-block rounded-xl bg-black text-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Browse courses
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const courseSummary = {
+    id: course.id,
+    title: course.title,
+    instructor: course.instructor,
+    price: course.price,
+    duration: course.duration,
+    level: course.level,
+    lessonCount: course.lessons.length,
+  };
+
   return (
-    <FoundationPlaceholder
-      eyebrow="Sprint 01 Foundation"
-      title="Fake Checkout"
-      summary="Shared route scaffold for the MVP enroll UI. Sprint 01 keeps this visual and contract-ready without forcing a real backend purchase flow too early."
-      owner="P1"
-      routeId="/dashboard/checkout"
-      implementationNotes={[
-        "Use this page for the simplified enroll screen and feedback states.",
-        "Treat the enroll action as UI foundation first.",
-        "Keep the screen reusable for a real enroll API in Sprint 02.",
-      ]}
-      dependencyNotes={[
-        "P2 only needs to define the enroll request/response contract during Sprint 01.",
-        "A usable POST /api/enroll backend flow is deferred to Sprint 02.",
-        "Do not add payment provider logic in the MVP foundation sprint.",
-      ]}
-    />
+    <div className="space-y-5">
+      <div className="flex items-center gap-3">
+        <Link
+          href={`/dashboard/courses/${course.id}`}
+          className="text-sm text-gray-500 hover:text-gray-800 transition"
+        >
+          ← Back to course
+        </Link>
+      </div>
+      <h1 className="text-2xl font-bold">Checkout</h1>
+      <div className="max-w-lg">
+        <EnrollForm course={courseSummary} />
+      </div>
+    </div>
   );
 }

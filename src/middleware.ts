@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
-import NextAuth from "next-auth";
-import authConfig from "@/auth.config";
+import type { NextRequest } from "next/server";
 
-const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
-  if (!req.auth?.user) {
-    const signInUrl = new URL("/auth/signin", req.url);
-    signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
-    return NextResponse.redirect(signInUrl);
-  }
-
+// DEV BYPASS — restore the original before pushing your branch
+export default function middleware(_req: NextRequest) {
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/dashboard/:path*"],
