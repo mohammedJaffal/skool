@@ -1,38 +1,54 @@
 import { signOut } from "@/auth";
+import Link from "next/link";
 
 type TopNavProps = {
-  userName: string;
-  role: string;
+  userName?: string;
+  role?: string;
 };
 
 export function TopNav({ userName, role }: TopNavProps) {
-  return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[color:var(--line)] bg-white px-5 py-4 shadow-sm">
-      <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-          Signed in
-        </p>
-        <p className="text-base font-semibold">{userName}</p>
-      </div>
+  const signedIn = Boolean(userName);
 
-      <div className="flex items-center gap-3">
-        <span className="rounded-full border border-[color:var(--line)] bg-[color:var(--surface-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--muted)]">
-          {role}
-        </span>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <button
-            type="submit"
-            className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--line)] bg-[color:var(--surface-raised)] px-4 py-3 md:px-6">
+      <Link href="/" className="text-[1.65rem] font-black tracking-[-0.08em]">
+        <span className="text-[#4667d7]">s</span>
+        <span className="text-[#cf7b3b]">k</span>
+        <span className="text-[#dbc353]">o</span>
+        <span className="text-[#4667d7]">o</span>
+        <span className="text-[#c56d58]">l</span>
+      </Link>
+
+      {signedIn ? (
+        <div className="flex items-center gap-3">
+          <div className="hidden text-right sm:block">
+            <p className="text-sm font-semibold">{userName}</p>
+          </div>
+          <span className="rounded-[8px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] px-2 py-1 text-xs font-medium text-[color:var(--muted)]">
+            {role}
+          </span>
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/" });
+            }}
           >
-            Sign Out
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              className="rounded-[10px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] px-4 py-2 text-sm font-medium transition hover:bg-[color:var(--surface-soft)]"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+      ) : (
+        <Link
+          href="/auth/signin"
+          className="rounded-[10px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] px-4 py-2 text-sm font-medium transition hover:bg-[color:var(--surface-soft)]"
+        >
+          Log in
+        </Link>
+      )}
     </header>
   );
 }

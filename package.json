@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "db:seed": "node scripts/seed-mvp.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

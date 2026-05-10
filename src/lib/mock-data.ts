@@ -26,6 +26,17 @@ export type Comment = {
   createdAt: string;
 };
 
+export type Announcement = {
+  id: string;
+  courseId: string;
+  title: string;
+  authorName: string;
+  authorInitials: string;
+  content: string;
+  createdAt: string;
+  comments: Comment[];
+};
+
 export type Post = {
   id: string;
   authorName: string;
@@ -163,6 +174,74 @@ export const POSTS: Post[] = [
   },
 ];
 
+export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "a-1",
+    courseId: "1",
+    title: "Start here before lesson one",
+    authorName: "John Doe",
+    authorInitials: "JD",
+    content:
+      "Before you jump into the first React lesson, make sure Node.js is installed and your editor is ready. The goal in this course is not just to watch the lessons, but to build along with them from the start.",
+    createdAt: hoursAgo(26),
+    comments: [
+      {
+        id: "a-1-c-1",
+        authorName: "Sarah Chen",
+        authorInitials: "SC",
+        content:
+          "I set up my editor and started coding with the video. Much better than passively watching.",
+        createdAt: hoursAgo(22),
+      },
+      {
+        id: "a-1-c-2",
+        authorName: "Mike P",
+        authorInitials: "MP",
+        content: "The checklist helped. I was missing Node before this post.",
+        createdAt: hoursAgo(20),
+      },
+    ],
+  },
+  {
+    id: "a-2",
+    courseId: "1",
+    title: "Weekly build challenge",
+    authorName: "John Doe",
+    authorInitials: "JD",
+    content:
+      "Build a tiny component system using only props, state, and clear naming. Post screenshots of your result in the community once you finish the challenge.",
+    createdAt: hoursAgo(8),
+    comments: [
+      {
+        id: "a-2-c-1",
+        authorName: "Priya Nair",
+        authorInitials: "PN",
+        content: "This made the props section click for me. I had to simplify a lot.",
+        createdAt: hoursAgo(5),
+      },
+    ],
+  },
+  {
+    id: "a-3",
+    courseId: "2",
+    title: "How to approach the App Router module",
+    authorName: "Jane Smith",
+    authorInitials: "JS",
+    content:
+      "Do not try to memorize the whole App Router at once. Follow the route tree while reading each lesson and keep a small note of what is layout-level, page-level, and server-only behavior.",
+    createdAt: hoursAgo(30),
+    comments: [
+      {
+        id: "a-3-c-1",
+        authorName: "Alex Rivera",
+        authorInitials: "AR",
+        content: "The route tree note-taking idea is solid. It reduced a lot of confusion.",
+        createdAt: hoursAgo(18),
+      },
+    ],
+  },
+];
+
 export function getCourseById(id: string): Course | undefined {
   return COURSES.find((c) => c.id === id);
 }
@@ -172,4 +251,30 @@ export function getLessonById(
   lessonId: string,
 ): Lesson | undefined {
   return getCourseById(courseId)?.lessons.find((l) => l.id === lessonId);
+}
+
+export function getLessonByIdGlobal(lessonId: string): Lesson | undefined {
+  return COURSES.flatMap((course) => course.lessons).find(
+    (lesson) => lesson.id === lessonId,
+  );
+}
+
+export function getLessonsByCourseId(courseId: string): Lesson[] {
+  return [...(getCourseById(courseId)?.lessons ?? [])].sort(
+    (a, b) => a.order - b.order,
+  );
+}
+
+export function getAnnouncementsByCourseId(courseId: string): Announcement[] {
+  return ANNOUNCEMENTS.filter((announcement) => announcement.courseId === courseId);
+}
+
+export function getAnnouncementById(
+  courseId: string,
+  announcementId: string,
+): Announcement | undefined {
+  return ANNOUNCEMENTS.find(
+    (announcement) =>
+      announcement.courseId === courseId && announcement.id === announcementId,
+  );
 }

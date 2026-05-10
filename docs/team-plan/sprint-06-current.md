@@ -26,8 +26,8 @@ Status rules:
 
 ### 1. Final UX Polish
 - [ ] Improve visual consistency across major protected flows
-- [ ] Clean obvious spacing, hierarchy, and route-to-route UI mismatches
-- [ ] Keep the final product presentation coherent
+- [x] Clean obvious spacing, hierarchy, and route-to-route UI mismatches
+- [x] Keep the final product presentation coherent
 - Done means: the MVP looks like one product instead of a set of disconnected sprint screens.
 
 ### 2. Empty, Loading, And Error Consistency
@@ -37,51 +37,51 @@ Status rules:
 - Done means: the main demo flow behaves predictably when data or actions are missing or delayed.
 
 ### 3. Demo-Ready Page Cleanup
-- [ ] Improve readability on core learner flows
-- [ ] Improve readability on core teacher flows
-- [ ] Improve readability on core admin flows
+- [x] Improve readability on core learner flows
+- [x] Improve readability on core teacher flows
+- [x] Improve readability on core admin flows
 - Done means: the most important demo screens are clear and stable for presentation use.
 
 Validation:
 - Branch: `sadik`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Partially complete (the main pages are coherent, but final consistency passes are still open)`
+- Merge status: `Implemented in main`
 
 ## P2 - Backend - Sabri
 
 ### 1. API Cleanup Pass
 - [ ] Remove or reduce obvious contract inconsistencies
-- [ ] Verify route naming coherence across accepted MVP flows
+- [x] Verify route naming coherence across accepted MVP flows
 - [ ] Close backend gaps that still block stable demo behavior
 - Done means: the accepted backend surface is coherent enough for final testing and presentation.
 
 ### 2. Demo And Seed Data Strategy
-- [ ] Define stable sample data needed for demo paths
-- [ ] Prepare seed/demo data support for core roles and flows
-- [ ] Ensure demo data matches the Campus Digital domain model
+- [x] Define stable sample data needed for demo paths
+- [x] Prepare seed/demo data support for core roles and flows
+- [x] Ensure demo data matches the Campus Digital domain model
 - Done means: the team can reliably demonstrate the product without manual data repair.
 
 ### 3. Domain Bug-Fix Pass
-- [ ] Fix accepted high-priority bugs found during final testing
-- [ ] Clean obvious route/data edge cases on MVP flows
-- [ ] Keep fixes aligned with the conception, not ad hoc shortcuts
+- [x] Fix accepted high-priority bugs found during final testing
+- [x] Clean obvious route/data edge cases on MVP flows
+- [x] Keep fixes aligned with the conception, not ad hoc shortcuts
 - Done means: backend behavior is reliable enough for delivery and presentation.
 
 Validation:
 - Branch: `sabri`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Mostly complete (seed/demo strategy and bug-fix pass are in; a few contract cleanup items remain)`
+- Merge status: `Implemented in main`
 
 ## P3 - Integration - Jaffal
 
 ### 1. Deployment Checklist
-- [ ] Final deploy-readiness pass
-- [ ] Environment and route protection sanity checks
-- [ ] Confirm the team can present one stable branch state
+- [x] Final deploy-readiness pass
+- [x] Environment and route protection sanity checks
+- [x] Confirm the team can present one stable branch state
 - Done means: the project is ready for final deployment and handoff.
 
 ### 2. Smoke-Test Matrix
@@ -91,17 +91,17 @@ Validation:
 - Done means: the final MVP has one repeatable manual test flow before presentation.
 
 ### 3. Final Merge Gate And Demo Runbook
-- [ ] Review all final accepted work against the sprint sequence
+- [x] Review all final accepted work against the sprint sequence
 - [ ] Merge only validated work into the final demo state
 - [ ] Prepare the demo order and presentation flow for the team
 - Done means: the team can show the full MVP without confusion about what to click, who logs in, or what is supposed to work.
 
 Validation:
 - Branch: `jaffal`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Partially complete (deploy/build checks are done; final smoke-test matrix and runbook are still open)`
+- Merge status: `Implemented in main`
 
 ## Final Delivery Gate
 

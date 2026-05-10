@@ -2,15 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Course } from "@/lib/mock-data";
+import { useRouter } from "next/navigation";
+
+type EnrollableCourse = {
+  id: string;
+  title: string;
+  price: number;
+  instructor: string;
+  duration: string;
+  level: string;
+  lessons: { id: string }[];
+};
 
 type Status = "idle" | "loading" | "success" | "error";
 
 interface EnrollFormProps {
-  course: Course;
+  course: EnrollableCourse;
 }
 
 export function EnrollForm({ course }: EnrollFormProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
   const [enrollmentId, setEnrollmentId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -24,6 +35,10 @@ export function EnrollForm({ course }: EnrollFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseId: course.id }),
       });
+      if (res.status === 401) {
+        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/dashboard/checkout?courseId=${course.id}`)}`);
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = (await res.json()) as { enrollmentId: string };
       setEnrollmentId(data.enrollmentId);
@@ -39,10 +54,10 @@ export function EnrollForm({ course }: EnrollFormProps) {
       <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center">
         <p className="text-3xl">🎉</p>
         <h2 className="mt-2 text-lg font-semibold text-green-800">
-          You&apos;re enrolled!
+          Access request saved!
         </h2>
         <p className="mt-1 text-sm text-green-700">
-          Enrollment ID:{" "}
+          Request ID:{" "}
           <span className="font-mono font-semibold">{enrollmentId}</span>
         </p>
         <Link
@@ -91,7 +106,8 @@ export function EnrollForm({ course }: EnrollFormProps) {
           Payment
         </h2>
         <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-600">
-          This is a demo checkout — no real payment is processed.
+          This is a demo access flow. For seeded real courses, this creates a
+          join request instead of a payment.
         </p>
         <div className="space-y-3">
           <input
@@ -122,7 +138,11 @@ export function EnrollForm({ course }: EnrollFormProps) {
         disabled={status === "loading"}
         className="w-full rounded-xl bg-[color:var(--brand)] py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
       >
-        {status === "loading" ? "Enrolling..." : `Enroll — $${course.price}`}
+        {status === "loading"
+          ? "Submitting..."
+          : course.price > 0
+            ? `Enroll — $${course.price}`
+            : "Request access"}
       </button>
     </div>
   );

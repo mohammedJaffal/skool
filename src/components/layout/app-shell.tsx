@@ -1,19 +1,36 @@
-import { Sidebar } from "@/components/layout/sidebar";
+import Link from "next/link";
 import { TopNav } from "@/components/layout/top-nav";
+import { getDashboardRoutes } from "@/config/dashboard-nav";
 
 type AppShellProps = {
   children: React.ReactNode;
-  userName: string;
-  role: string;
+  userName?: string;
+  role?: string;
 };
 
 export function AppShell({ children, userName, role }: AppShellProps) {
+  const links = getDashboardRoutes(role ?? "LEARNER", Boolean(userName));
+
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-4 px-4 py-6 md:px-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-4 md:px-6">
       <TopNav userName={userName} role={role} />
-      <div className="flex flex-1 flex-col gap-4 md:flex-row">
-        <Sidebar role={role} />
-        <main className="min-h-[70vh] flex-1 rounded-2xl border border-[color:var(--line)] bg-white p-5 shadow-sm">
+
+      <div className="overflow-x-auto border-b border-[color:var(--line)] bg-[color:var(--surface-raised)]">
+        <nav className="flex min-w-max items-center gap-6 px-1 py-3">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="border-b border-transparent pb-2 text-sm font-medium text-[color:var(--muted)] transition hover:border-[color:var(--foreground)] hover:text-[color:var(--foreground)]"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      <div className="flex flex-1 flex-col py-6">
+        <main className="min-h-[70vh] rounded-[12px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-5 md:p-6">
           {children}
         </main>
       </div>

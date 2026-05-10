@@ -4,10 +4,24 @@ import authConfig from "@/auth.config";
 
 const { auth } = NextAuth(authConfig);
 
+const protectedPrefixes = [
+  "/dashboard/admin",
+  "/dashboard/deploy",
+  "/dashboard/teach",
+  "/dashboard/invitations",
+  "/dashboard/progress",
+  "/dashboard/account",
+];
+
 export default auth((req) => {
-  if (!req.auth?.user) {
+  const pathname = req.nextUrl.pathname;
+  const needsAuth = protectedPrefixes.some((prefix) =>
+    pathname.startsWith(prefix),
+  );
+
+  if (needsAuth && !req.auth?.user) {
     const signInUrl = new URL("/auth/signin", req.url);
-    signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
   }
 

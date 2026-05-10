@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CourseItem = {
   id: string;
@@ -8,26 +8,44 @@ type CourseItem = {
   description: string;
 };
 
-const initialCourses: CourseItem[] = [
-  {
-    id: "draft-community-setup",
-    title: "Community Setup",
-    description: "Intro flow for members, structure, and posting rules.",
-  },
-  {
-    id: "draft-course-outline",
-    title: "Course Outline",
-    description: "Starter content structure for classroom and lesson pages.",
-  },
-];
-
 export function AdminCourseManager() {
-  const [courses, setCourses] = useState(initialCourses);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadCourses() {
+      const response = await fetch("/api/admin/courses");
+      const payload = (await response.json().catch(() => null)) as
+        | { courses?: CourseItem[]; error?: string }
+        | null;
+
+      if (ignore) {
+        return;
+      }
+
+      if (!response.ok) {
+        setStatus(payload?.error ?? "Could not load admin courses.");
+        setIsLoading(false);
+        return;
+      }
+
+      setCourses(payload?.courses ?? []);
+      setIsLoading(false);
+    }
+
+    void loadCourses();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -97,8 +115,7 @@ export function AdminCourseManager() {
           </p>
           <h2 className="text-xl font-semibold">Admin course flow</h2>
           <p className="text-sm text-[color:var(--muted)]">
-            This creates and removes course drafts through the admin API while
-            P2 finalizes the real data layer.
+            This creates and removes real course drafts through the admin API.
           </p>
         </div>
 
@@ -149,6 +166,11 @@ export function AdminCourseManager() {
         </div>
 
         <div className="space-y-3">
+          {isLoading ? (
+            <div className="rounded-2xl border border-[color:var(--line)] bg-white p-4 text-sm text-[color:var(--muted)]">
+              Loading course drafts...
+            </div>
+          ) : null}
           {courses.map((course) => (
             <article
               key={course.id}

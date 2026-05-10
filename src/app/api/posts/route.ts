@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { POSTS, Post } from "@/lib/mock-data";
 
 // In-memory store so new posts persist across requests in dev
@@ -9,6 +10,15 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      { error: "Sign in to publish a post." },
+      { status: 401 },
+    );
+  }
+
   const body = await req.json();
   const { content, authorName } = body as { content: string; authorName: string };
 

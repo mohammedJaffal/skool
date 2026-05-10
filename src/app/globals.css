@@ -6,12 +6,15 @@
 }
 
 :root {
-  --background: #f3f4f6;
-  --foreground: #111827;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --surface-soft: #f9fafb;
-  --brand: #4f46e5;
+  --background: #f3efe6;
+  --foreground: #1f1d1a;
+  --muted: #6f685d;
+  --line: #ddd5c8;
+  --surface-soft: #f7f2e9;
+  --surface-raised: #fffdf8;
+  --brand: #5d4c39;
+  --brand-soft: #ece3d6;
+  --chip: #ece4d7;
 }
 
 body {

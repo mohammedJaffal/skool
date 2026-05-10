@@ -47,3 +47,5 @@ next-env.d.ts
 # private team review
 .team-review/
 AGENTS.md
+
+cookies.json

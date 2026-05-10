@@ -27,7 +27,7 @@ Status rules:
 ### 1. Course List And Course Detail
 - [x] Course list page UI
 - [x] Course detail page UI
-- [ ] Shared loading, empty, and error states for course read pages
+- [x] Shared loading, empty, and error states for course read pages
 - Done means: learners can browse from course list to course detail with stable UI against mock or real read contracts.
 
 ### 2. Lesson Viewer
@@ -37,13 +37,13 @@ Status rules:
 - Done means: one lesson can be opened clearly from a course flow and viewed without layout confusion.
 
 ### 3. Announcement Read Flow
-- [ ] Announcement list/read UI inside course flow
-- [ ] Comment read UI for announcement discussions
-- [ ] Loading and empty states for course communication reads
+- [x] Announcement list/read UI inside course flow
+- [x] Comment read UI for announcement discussions
+- [x] Loading and empty states for course communication reads
 - Done means: a learner can open course communication pages and read announcements and existing comments clearly.
 
 ### 4. UI Quality Pass For Read Foundation
-- [ ] Route-to-route consistency across course, lesson, and announcement pages
+- [x] Route-to-route consistency across course, lesson, and announcement pages
 - [ ] Basic mobile polish on the new read-side pages
 - [x] Stable mock-data fallback until backend contracts are accepted
 - Done means: the Sprint 01 learner read experience feels like one connected protected product flow.
@@ -52,8 +52,8 @@ Validation:
 - Branch: `sadik`
 - Reviewer: `jaffal`
 - Review date: `2026-05-10`
-- Result: `Partially complete (foundation UI implemented, announcement read flow still pending)`
-- Merge status: `Merged to main (partial Sprint 01)`
+- Result: `Mostly complete (read-side flow is integrated; mobile polish still open)`
+- Merge status: `Merged to main`
 
 ## P2 - Backend - Sabri
 
@@ -75,23 +75,23 @@ Validation:
 ### 3. Read Foundation APIs
 - [x] `GET /api/courses`
 - [x] `GET /api/courses/:courseId`
-- [ ] `GET /api/courses/:courseId/lessons`
-- [ ] `GET /api/lessons/:lessonId`
-- [ ] `GET /api/courses/:courseId/announcements`
+- [x] `GET /api/courses/:courseId/lessons`
+- [x] `GET /api/lessons/:lessonId`
+- [x] `GET /api/courses/:courseId/announcements`
 - Done means: the protected frontend can fetch first read-side classroom and communication data with stable payloads.
 
 ### 4. Shared Read Contracts
-- [ ] Publish example payloads for courses, lessons, announcements, and comments
-- [ ] Confirm response shapes with P1 and P3
-- [ ] Keep comment structure ready for later write-side flow
+- [x] Publish example payloads for courses, lessons, announcements, and comments
+- [x] Confirm response shapes with P1 and P3
+- [x] Keep comment structure ready for later write-side flow
 - Done means: read-side integration can proceed without route or payload ambiguity.
 
 Validation:
 - Branch: `sabri`
 - Reviewer: `jaffal`
 - Review date: `2026-05-10`
-- Result: `Partially complete (schema + migration + core read APIs exist; lessons/announcements read routes still pending)`
-- Merge status: `Merged to main (partial Sprint 01)`
+- Result: `Complete for foundation scope`
+- Merge status: `Merged to main`
 
 ## P3 - Integration - Jaffal
 
@@ -118,14 +118,14 @@ P3 starts first.
 ### 4. Sprint 01 Acceptance Gate
 - [x] Run branch review and merge checks for P1 and P2
 - [x] Integrate accepted P1 and P2 work into the protected shell
-- [ ] Validate role-aware navigation against accepted read-side routes
+- [x] Validate role-aware navigation against accepted read-side routes
 - Done means: accepted Sprint 01 work behaves as one protected read-side MVP slice.
 
 Validation:
 - Branch: `jaffal`
 - Reviewer: `jaffal`
 - Review date: `2026-05-10`
-- Result: `Mostly complete (integration foundation done; final acceptance waits for missing P1/P2 read routes)`
+- Result: `Complete for Sprint 01 integration scope`
 - Merge status: `Merged to main`
 
 ## Dependency Gate For Sprint 02

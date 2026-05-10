@@ -5,19 +5,21 @@ import { getDashboardRoutes } from "@/config/dashboard-nav";
 export default async function DashboardPage() {
   const session = await auth();
   const role = session?.user?.role ?? "LEARNER";
-  const items = getDashboardRoutes(role);
+  const items = getDashboardRoutes(role, Boolean(session?.user));
 
   return (
     <section className="space-y-6">
-      <div>
+      <div className="rounded-[24px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-5">
         <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-          Sprint 01 Foundation
+          Community home
         </p>
-        <h1 className="text-3xl font-bold">Integration Dashboard</h1>
+        <h1 className="mt-1 text-3xl font-black tracking-[-0.04em]">
+          Campus Digital workspace
+        </h1>
         <p className="mt-2 max-w-3xl text-sm text-[color:var(--muted)]">
-          Shared dashboard routes are ready for incoming P1 and P2 work. Route
-          structure should stay stable while feature UI and APIs are added in
-          their own branches.
+          This is the community shell that mirrors Skool’s structure: public
+          discovery outside, read-first classroom and community inside, then
+          auth-gated actions layered on top.
         </p>
       </div>
 
@@ -25,11 +27,11 @@ export default async function DashboardPage() {
         {items.map((item) => (
           <article
             key={item.href}
-            className="rounded-2xl border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-4"
+            className="rounded-[24px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-4 shadow-[0_14px_38px_rgba(32,33,39,0.06)]"
           >
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold">{item.label}</h2>
-              <span className="rounded-full border border-[color:var(--line)] bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--muted)]">
+              <span className="rounded-full bg-[color:var(--chip)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--muted)]">
                 {item.owner}
               </span>
             </div>

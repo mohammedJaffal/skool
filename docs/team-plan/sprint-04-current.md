@@ -25,21 +25,21 @@ Status rules:
 ## P1 - Frontend - Sadik
 
 ### 1. Announcement Publishing UI
-- [ ] Teacher announcement create UI
+- [x] Teacher announcement create UI
 - [ ] Teacher announcement edit/read flow UI where needed
 - [ ] Clear published vs draft presentation in teacher screens
 - Done means: a teacher can manage course announcements from the UI without leaving the course context.
 
 ### 2. Course Discussion Refinement
 - [ ] Comment interaction polish
-- [ ] Clear announcement-thread reading flow
-- [ ] Success/error/empty states for discussion pages
+- [x] Clear announcement-thread reading flow
+- [x] Success/error/empty states for discussion pages
 - Done means: course communication is understandable and stable for repeated use.
 
 ### 3. Teacher Communication Screens
-- [ ] Teacher-facing communication overview inside course workspace
+- [x] Teacher-facing communication overview inside course workspace
 - [ ] Links from course manager to communication screens
-- [ ] Basic learner/teacher context differences in UI
+- [x] Basic learner/teacher context differences in UI
 - Done means: communication is fully attached to course management, not isolated.
 
 ### 4. UX Cleanup On Access And Participation Flows
@@ -50,70 +50,70 @@ Status rules:
 
 Validation:
 - Branch: `sadik`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Partially complete (announcement publishing and discussion flow are in; final polish is still open)`
+- Merge status: `Implemented in main`
 
 ## P2 - Backend - Sabri
 
 ### 1. Announcement Write Endpoints
-- [ ] Create announcement endpoint
+- [x] Create announcement endpoint
 - [ ] Update announcement endpoint if needed for MVP teacher flow
-- [ ] Teacher/admin authorization enforcement
+- [x] Teacher/admin authorization enforcement
 - Done means: teachers can publish course communication through stable backend routes.
 
 ### 2. Membership Removal And Update Flows
-- [ ] Remove learner from course endpoint
-- [ ] Membership status update flow where needed
-- [ ] Stable membership response shapes for teacher member screens
+- [x] Remove learner from course endpoint
+- [x] Membership status update flow where needed
+- [x] Stable membership response shapes for teacher member screens
 - Done means: course participation can be managed after initial access is granted.
 
 ### 3. Request And Invitation Completion
-- [ ] Finish any missing accept/reject/cancel flow pieces
-- [ ] Clean up status transitions for invitation/request models
-- [ ] Ensure payload shapes support final integrated UI
+- [x] Finish any missing accept/reject/cancel flow pieces
+- [x] Clean up status transitions for invitation/request models
+- [x] Ensure payload shapes support final integrated UI
 - Done means: access-control flows no longer have partial states blocking communication usage.
 
 ### 4. Communication And Participation Contracts
-- [ ] Confirm announcement/comment payloads for integrated pages
-- [ ] Confirm member-status payloads for teacher communication screens
-- [ ] Keep API naming aligned with the conception
+- [x] Confirm announcement/comment payloads for integrated pages
+- [x] Confirm member-status payloads for teacher communication screens
+- [x] Keep API naming aligned with the conception
 - Done means: P1 and P3 can integrate stable communication and participation flows.
 
 Validation:
 - Branch: `sabri`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Mostly complete (communication and participation routes are live; announcement edit is still open)`
+- Merge status: `Implemented in main`
 
 ## P3 - Integration - Jaffal
 
 ### 1. Communication Integration Hardening
-- [ ] Validate membership-aware access for communication routes
-- [ ] Keep teacher and learner communication entry points coherent
+- [x] Validate membership-aware access for communication routes
+- [x] Keep teacher and learner communication entry points coherent
 - [ ] Check for regressions against lesson and membership flows
 - Done means: communication routes behave correctly inside the protected product shell.
 
 ### 2. Validation And Error Handling Pass
-- [ ] Review accepted access-control and communication flows together
-- [ ] Standardize obvious route-level error handling gaps
-- [ ] Catch role/ownership regressions before merge
+- [x] Review accepted access-control and communication flows together
+- [x] Standardize obvious route-level error handling gaps
+- [x] Catch role/ownership regressions before merge
 - Done means: Sprint 04 is stable enough for repeated demo testing on communication paths.
 
 ### 3. Acceptance Gate Across Teacher And Learner Flows
-- [ ] Integrate accepted P1 and P2 work into one usable communication slice
-- [ ] Validate teacher publish flow and learner participation flow together
+- [x] Integrate accepted P1 and P2 work into one usable communication slice
+- [x] Validate teacher publish flow and learner participation flow together
 - [ ] Confirm the sprint milestone is ready before progress/evaluation work begins
 - Done means: course communication is a reliable integrated product flow.
 
 Validation:
 - Branch: `jaffal`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Mostly complete (the integrated communication slice is usable; final regression cleanup is still open)`
+- Merge status: `Implemented in main`
 
 ## Dependency Gate For Sprint 05
 

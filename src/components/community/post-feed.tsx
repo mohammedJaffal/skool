@@ -29,7 +29,7 @@ function Avatar({ initials, size = "md" }: { initials: string; size?: "sm" | "md
 
 interface PostFeedProps {
   posts: Post[];
-  currentUserName: string;
+  currentUserName?: string;
 }
 
 export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps) {
@@ -38,8 +38,9 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
   const [isPosting, setIsPosting] = useState(false);
   const [error, setError] = useState("");
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
+  const signedIn = Boolean(currentUserName);
 
-  const initials = currentUserName
+  const initials = (currentUserName ?? "Guest Viewer")
     .split(" ")
     .slice(0, 2)
     .map((w) => w[0] ?? "")
@@ -48,6 +49,10 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!signedIn) {
+      setError("Sign in to publish a post.");
+      return;
+    }
     if (!content.trim()) return;
     setIsPosting(true);
     setError("");
@@ -74,10 +79,9 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
 
   return (
     <div className="space-y-4">
-      {/* Compose */}
       <form
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-[color:var(--line)] bg-white p-4 shadow-sm"
+        className="rounded-[24px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-4 shadow-[0_14px_38px_rgba(32,33,39,0.06)]"
       >
         <div className="flex gap-3">
           <Avatar initials={initials} />
@@ -85,8 +89,13 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Share something with the group..."
-              className="w-full resize-none rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-3 text-sm outline-none transition focus:border-[color:var(--brand)]"
+              placeholder={
+                signedIn
+                  ? "Share something with the group..."
+                  : "Browse the feed publicly. Sign in to post."
+              }
+              disabled={!signedIn}
+              className="w-full resize-none rounded-[18px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-3 text-sm outline-none transition focus:border-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-70"
               rows={3}
               maxLength={500}
             />
@@ -97,8 +106,8 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
               {error && <span className="text-xs text-red-500">{error}</span>}
               <button
                 type="submit"
-                disabled={!content.trim() || isPosting}
-                className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
+                disabled={!signedIn || !content.trim() || isPosting}
+                className="rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
               >
                 {isPosting ? "Posting..." : "Post"}
               </button>
@@ -107,11 +116,10 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
         </div>
       </form>
 
-      {/* Feed */}
       {posts.map((post) => (
         <div
           key={post.id}
-          className="rounded-2xl border border-[color:var(--line)] bg-white p-4 shadow-sm"
+          className="rounded-[24px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-4 shadow-[0_14px_38px_rgba(32,33,39,0.06)]"
         >
           <div className="flex gap-3">
             <Avatar initials={post.authorInitials} />
@@ -124,13 +132,13 @@ export function PostFeed({ posts: initialPosts, currentUserName }: PostFeedProps
               </div>
               <p className="mt-1 text-sm">{post.content}</p>
               <div className="mt-3 flex gap-4 text-xs text-[color:var(--muted)]">
-                <span>👍 {post.likes}</span>
+                <span>↑ {post.likes}</span>
                 <button
                   type="button"
                   onClick={() => toggleComments(post.id)}
                   className="transition hover:text-[color:var(--foreground)]"
                 >
-                  💬 {post.comments.length}{" "}
+                  Comments {post.comments.length}{" "}
                   {post.comments.length === 1 ? "comment" : "comments"}
                 </button>
               </div>
