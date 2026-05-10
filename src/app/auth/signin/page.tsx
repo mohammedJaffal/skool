@@ -13,9 +13,6 @@ type SignInPageProps = {
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await auth();
-  const githubConfigured = Boolean(
-    process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET,
-  );
 
   if (session?.user) {
     redirect("/dashboard");
@@ -43,12 +40,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     <section className="mx-auto flex min-h-[80vh] w-full max-w-md items-center px-4 py-10">
       <article className="w-full space-y-4 rounded-2xl border border-[color:var(--line)] bg-white p-6 shadow-sm">
         <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-          P3 Integration
+          Campus Digital
         </p>
         <h1 className="text-2xl font-bold">Sign In</h1>
         <p className="text-sm text-[color:var(--muted)]">
-          Sign in with email/password stored in your database. GitHub OAuth is
-          optional and can be enabled later.
+          Sign in with email/password stored in your database.
         </p>
 
         {errorMessage ? (
@@ -191,28 +187,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           </button>
         </form>
 
-        {githubConfigured ? (
-          <div className="space-y-3">
-            <form
-              action={async () => {
-                "use server";
-                await signIn("github", { redirectTo: callbackUrl });
-              }}
-            >
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                Continue With GitHub
-              </button>
-            </form>
-          </div>
-        ) : (
-          <div className="rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-3 text-sm text-[color:var(--muted)]">
-            GitHub OAuth is not configured yet. Email/password auth is fully
-            available with your database.
-          </div>
-        )}
+        <div className="rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-3 text-sm text-[color:var(--muted)]">
+          Account access is database-only in this version.
+        </div>
       </article>
     </section>
   );
