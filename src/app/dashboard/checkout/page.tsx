@@ -1,55 +1,28 @@
-import Link from "next/link";
-import { COURSES } from "@/lib/mock-data";
+import { getCourseById, COURSES } from "@/lib/mock-data";
 import { EnrollForm } from "@/components/checkout/enroll-form";
 
-type CheckoutPageProps = {
+interface Props {
   searchParams: Promise<{ courseId?: string }>;
-};
+}
 
-export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
+export default async function CheckoutPage({ searchParams }: Props) {
   const { courseId } = await searchParams;
-  const course = COURSES.find((c) => c.id === courseId);
-
-  if (!course) {
+  const course = courseId ? getCourseById(courseId) : COURSES[0];
+  if (!course)
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Checkout</h1>
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center space-y-3">
-          <p className="text-gray-500 text-sm">No course selected.</p>
-          <Link
-            href="/dashboard/courses"
-            className="inline-block rounded-xl bg-black text-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-800 transition"
-          >
-            Browse courses
-          </Link>
-        </div>
-      </div>
+      <p className="text-[color:var(--muted)]">Course not found.</p>
     );
-  }
-
-  const courseSummary = {
-    id: course.id,
-    title: course.title,
-    instructor: course.instructor,
-    price: course.price,
-    duration: course.duration,
-    level: course.level,
-    lessonCount: course.lessons.length,
-  };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <Link
-          href={`/dashboard/courses/${course.id}`}
-          className="text-sm text-gray-500 hover:text-gray-800 transition"
-        >
-          ← Back to course
-        </Link>
+    <div>
+      <div className="mb-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
+          Checkout
+        </p>
+        <h1 className="text-2xl font-semibold">Enroll in Course</h1>
       </div>
-      <h1 className="text-2xl font-bold">Checkout</h1>
-      <div className="max-w-lg">
-        <EnrollForm course={courseSummary} />
+      <div className="mx-auto max-w-md">
+        <EnrollForm course={course} />
       </div>
     </div>
   );

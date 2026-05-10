@@ -14,7 +14,7 @@ export default async function DashboardLayout({
   }
 
   const userName = session.user.name ?? session.user.email ?? "Unknown User";
-  const role = session.user.role ?? "MEMBER";
+  const role = session.user.role ?? "LEARNER";
 
   return (
     <AppShell userName={userName} role={role}>

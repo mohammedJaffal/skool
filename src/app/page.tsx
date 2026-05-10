@@ -1,54 +1,58 @@
 import Link from "next/link";
 
-const p3Cards = [
+const cards = [
   {
-    title: "Auth System",
-    description: "NextAuth v5 config + /api/auth routes",
+    label: "Auth System",
     href: "/auth/signin",
+    summary: "Sign in, sign out, and session management.",
+    owner: "P3",
   },
   {
-    title: "Dashboard Layout",
-    description: "Sidebar + top nav that connects integration pages",
+    label: "Dashboard Layout",
     href: "/dashboard",
+    summary: "Sidebar, top nav, and app shell wired up.",
+    owner: "P3",
   },
   {
-    title: "Admin Panel",
-    description: "Manage courses with POST/DELETE APIs",
+    label: "Admin Panel",
     href: "/dashboard/admin",
+    summary: "Role-protected course management.",
+    owner: "P3",
   },
   {
-    title: "Deploy + Git",
-    description: "Vercel setup and branch/review workflow",
+    label: "Deploy + Git",
     href: "/dashboard/deploy",
+    summary: "Branch status and deployment pipeline.",
+    owner: "P3",
   },
 ];
 
 export default function HomePage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 md:px-8">
-      <div className="space-y-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--muted)]">
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-2xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
           P3 Integration Workspace
         </p>
-        <h1 className="text-4xl font-bold leading-tight md:text-5xl">
+        <h1 className="mt-2 text-3xl font-bold">
           Auth, Dashboard, Admin, and Deploy flow in one place.
         </h1>
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {cards.map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className="rounded-2xl border border-[color:var(--line)] bg-white p-5 shadow-sm transition hover:border-[color:var(--brand)]"
+            >
+              <div className="flex items-baseline justify-between">
+                <h2 className="font-semibold">{c.label}</h2>
+                <span className="text-xs text-[color:var(--muted)]">{c.owner}</span>
+              </div>
+              <p className="mt-1 text-sm text-[color:var(--muted)]">{c.summary}</p>
+            </Link>
+          ))}
+        </div>
       </div>
-
-      <section className="mt-8 grid gap-4 md:grid-cols-2">
-        {p3Cards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="rounded-2xl border border-[color:var(--line)] bg-white p-5 shadow-sm transition hover:border-[color:var(--brand)]"
-          >
-            <h2 className="text-2xl font-semibold">{card.title}</h2>
-            <p className="mt-2 text-sm text-[color:var(--muted)]">
-              {card.description}
-            </p>
-          </Link>
-        ))}
-      </section>
-    </main>
+    </div>
   );
 }

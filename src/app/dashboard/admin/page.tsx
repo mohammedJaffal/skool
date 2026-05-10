@@ -4,7 +4,7 @@ import { AdminCourseManager } from "@/components/admin/admin-course-manager";
 
 export default async function AdminPage() {
   const session = await auth();
-  const role = session?.user?.role ?? "MEMBER";
+  const role = session?.user?.role ?? "LEARNER";
   const isAdmin = role === "ADMIN";
 
   return (

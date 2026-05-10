@@ -2,83 +2,89 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCourseById } from "@/lib/mock-data";
 
-type CourseDetailPageProps = {
-  params: Promise<{ courseId: string }>;
-};
-
 const levelColor: Record<string, string> = {
-  Beginner: "bg-green-100 text-green-700",
-  Intermediate: "bg-yellow-100 text-yellow-700",
-  Advanced: "bg-red-100 text-red-700",
+  Beginner: "text-green-700 bg-green-50",
+  Intermediate: "text-yellow-700 bg-yellow-50",
+  Advanced: "text-red-700 bg-red-50",
 };
 
-export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
+interface Props {
+  params: Promise<{ courseId: string }>;
+}
+
+export default async function CourseDetailPage({ params }: Props) {
   const { courseId } = await params;
   const course = getCourseById(courseId);
-
-  if (!course) {
-    notFound();
-  }
+  if (!course) notFound();
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <Link
-            href="/dashboard/courses"
-            className="text-sm text-gray-500 hover:text-gray-800 transition"
-          >
-            ← Back to courses
-          </Link>
-          <h1 className="text-2xl font-bold">{course.title}</h1>
-          <p className="text-gray-500 text-sm max-w-xl">{course.description}</p>
-        </div>
-        <Link
-          href={`/dashboard/checkout?courseId=${course.id}`}
-          className="shrink-0 rounded-xl bg-black text-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-800 transition"
-        >
-          Enroll — ${course.price}
-        </Link>
-      </div>
+    <div>
+      <Link
+        href="/dashboard/courses"
+        className="text-xs text-[color:var(--muted)] transition hover:text-[color:var(--foreground)]"
+      >
+        ← Back to courses
+      </Link>
 
-      {/* Meta */}
-      <div className="flex flex-wrap gap-3 text-sm">
-        <span className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-600">
-          👤 {course.instructor}
-        </span>
-        <span className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-600">
-          ⏱ {course.duration}
-        </span>
-        <span className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-600">
-          📚 {course.lessons.length} lessons
-        </span>
-        <span className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${levelColor[course.level] ?? "bg-gray-100 text-gray-600"}`}>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">{course.title}</h1>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">
+            By {course.instructor} · {course.duration} · {course.lessons.length}{" "}
+            lessons
+          </p>
+        </div>
+        <span
+          className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${levelColor[course.level]}`}
+        >
           {course.level}
         </span>
       </div>
+      <p className="mt-3 text-sm text-[color:var(--muted)]">
+        {course.description}
+      </p>
 
-      {/* Lesson list */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Course Content</h2>
-        <div className="space-y-2">
-          {course.lessons.map((lesson) => (
-            <Link
+      <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <div className="space-y-3 md:col-span-2">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-[color:var(--muted)]">
+            Curriculum
+          </h2>
+          {course.lessons.map((lesson, i) => (
+            <div
               key={lesson.id}
-              href={`/dashboard/courses/${course.id}/lessons/${lesson.id}`}
-              className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 hover:border-gray-400 hover:shadow-sm transition"
+              className="flex gap-4 rounded-2xl border border-[color:var(--line)] bg-white p-4 shadow-sm"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
-                  {lesson.order}
-                </span>
-                <span className="text-sm font-medium">{lesson.title}</span>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--surface-soft)] text-sm font-semibold text-[color:var(--muted)]">
+                {i + 1}
               </div>
-              <span className="text-xs text-gray-400">{lesson.duration}</span>
-            </Link>
+              <div>
+                <p className="font-medium">{lesson.title}</p>
+                <p className="mt-0.5 text-xs text-[color:var(--muted)]">
+                  {lesson.content}
+                </p>
+                <p className="mt-1 text-xs text-[color:var(--muted)]">
+                  {lesson.duration}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
-      </section>
+
+        <div>
+          <div className="rounded-2xl border border-[color:var(--line)] bg-white p-5 shadow-sm">
+            <p className="text-2xl font-bold">${course.price}</p>
+            <p className="mt-1 text-xs text-[color:var(--muted)]">
+              One-time payment · Lifetime access
+            </p>
+            <Link
+              href={`/dashboard/checkout?courseId=${course.id}`}
+              className="mt-4 block rounded-xl bg-[color:var(--brand)] py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Enroll now
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

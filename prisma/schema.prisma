@@ -7,21 +7,243 @@ datasource db {
 }
 
 enum UserRole {
-  MEMBER
+  LEARNER
+  TEACHER
   ADMIN
 }
 
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  REMOVED
+  REJECTED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          UserRole  @default(MEMBER)
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String              @id @default(cuid())
+  name             String?
+  email            String?             @unique
+  emailVerified    DateTime?
+  image            String?
+  passwordHash     String?
+  birthDate        DateTime?
+  role             UserRole            @default(LEARNER)
+  accounts         Account[]
+  sessions         Session[]
+  teacherProfile   TeacherProfile?
+  learnerProfile   LearnerProfile?
+  coursesOwned     Course[]            @relation("CourseTeacher")
+  courseMemberships CourseMembership[] @relation("MembershipLearner")
+  invitationsSent  CourseInvitation[]  @relation("InvitationTeacher")
+  invitationsReceived CourseInvitation[] @relation("InvitationLearner")
+  joinRequests     CourseJoinRequest[] @relation("JoinRequestLearner")
+  reviewedRequests CourseJoinRequest[] @relation("JoinRequestReviewer")
+  announcements    Announcement[]
+  comments         Comment[]
+  evaluations      CourseEvaluation[]
+  lessonProgress   LessonProgress[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+model TeacherProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  specialty String
+  bio       String?  @db.Text
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LearnerProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  track     String
+  bio       String?  @db.Text
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id            String             @id @default(cuid())
+  title         String
+  slug          String             @unique
+  description   String             @db.Text
+  type          String
+  status        CourseStatus       @default(DRAFT)
+  teacherId     String
+  teacher       User               @relation("CourseTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  lessons       Lesson[]
+  memberships   CourseMembership[]
+  invitations   CourseInvitation[]
+  joinRequests  CourseJoinRequest[]
+  announcements Announcement[]
+  evaluations   CourseEvaluation[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Lesson {
+  id            String           @id @default(cuid())
+  courseId      String
+  course        Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title         String
+  content       String           @db.Text
+  contentType   String
+  position      Int
+  progressItems LessonProgress[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([courseId, position])
+  @@index([courseId])
+}
+
+model CourseMembership {
+  id        String           @id @default(cuid())
+  courseId  String
+  learnerId String
+  status    MembershipStatus @default(PENDING)
+  joinedAt  DateTime         @default(now())
+  endedAt   DateTime?
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  learner   User             @relation("MembershipLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, learnerId])
+  @@index([learnerId])
+  @@index([status])
+}
+
+model CourseInvitation {
+  id          String           @id @default(cuid())
+  courseId    String
+  teacherId   String
+  learnerId   String
+  status      InvitationStatus @default(PENDING)
+  sentAt      DateTime         @default(now())
+  respondedAt DateTime?
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher     User             @relation("InvitationTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  learner     User             @relation("InvitationLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([teacherId])
+  @@index([learnerId])
+  @@index([status])
+}
+
+model CourseJoinRequest {
+  id           String            @id @default(cuid())
+  courseId     String
+  learnerId    String
+  status       JoinRequestStatus @default(PENDING)
+  createdAt    DateTime          @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+  course       Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  learner      User              @relation("JoinRequestLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+  reviewedBy   User?             @relation("JoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([courseId])
+  @@index([learnerId])
+  @@index([status])
+  @@index([reviewedById])
+}
+
+model Announcement {
+  id          String             @id @default(cuid())
+  courseId    String
+  authorId    String
+  title       String
+  content     String             @db.Text
+  status      AnnouncementStatus @default(DRAFT)
+  publishedAt DateTime?
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  author      User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([courseId])
+  @@index([authorId])
+  @@index([status])
+}
+
+model Comment {
+  id             String       @id @default(cuid())
+  announcementId String
+  authorId       String
+  content        String       @db.Text
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([announcementId])
+  @@index([authorId])
+}
+
+model CourseEvaluation {
+  id        String   @id @default(cuid())
+  courseId  String
+  learnerId String
+  rating    Int
+  feedback  String?  @db.Text
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  learner   User     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, learnerId])
+  @@index([learnerId])
+}
+
+model LessonProgress {
+  id           String   @id @default(cuid())
+  lessonId     String
+  learnerId    String
+  completed    Boolean  @default(false)
+  completedAt  DateTime?
+  lastViewedAt DateTime?
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  learner      User     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([lessonId, learnerId])
+  @@index([learnerId])
 }
 
 model Account {
