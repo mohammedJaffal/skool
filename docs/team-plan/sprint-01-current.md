@@ -25,15 +25,15 @@ Status rules:
 ## P1 - Frontend - Sadik
 
 ### 1. Course List And Course Detail
-- [ ] Course list page UI
-- [ ] Course detail page UI
+- [x] Course list page UI
+- [x] Course detail page UI
 - [ ] Shared loading, empty, and error states for course read pages
 - Done means: learners can browse from course list to course detail with stable UI against mock or real read contracts.
 
 ### 2. Lesson Viewer
-- [ ] Lesson content layout
-- [ ] Lesson page UI
-- [ ] Lesson navigation or lesson position handling
+- [x] Lesson content layout
+- [x] Lesson page UI
+- [x] Lesson navigation or lesson position handling
 - Done means: one lesson can be opened clearly from a course flow and viewed without layout confusion.
 
 ### 3. Announcement Read Flow
@@ -45,36 +45,36 @@ Status rules:
 ### 4. UI Quality Pass For Read Foundation
 - [ ] Route-to-route consistency across course, lesson, and announcement pages
 - [ ] Basic mobile polish on the new read-side pages
-- [ ] Stable mock-data fallback until backend contracts are accepted
+- [x] Stable mock-data fallback until backend contracts are accepted
 - Done means: the Sprint 01 learner read experience feels like one connected protected product flow.
 
 Validation:
 - Branch: `sadik`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Partially complete (foundation UI implemented, announcement read flow still pending)`
+- Merge status: `Merged to main (partial Sprint 01)`
 
 ## P2 - Backend - Sabri
 
 ### 1. Domain Foundation Schema
-- [ ] Add `TeacherProfile`
-- [ ] Add `LearnerProfile`
-- [ ] Add `Course`
-- [ ] Add `Lesson`
-- [ ] Add `Announcement`
-- [ ] Add `Comment`
+- [x] Add `TeacherProfile`
+- [x] Add `LearnerProfile`
+- [x] Add `Course`
+- [x] Add `Lesson`
+- [x] Add `Announcement`
+- [x] Add `Comment`
 - Done means: the first Campus Digital domain structure exists in Prisma with stable names for the team.
 
 ### 2. Migration And Stable Field Contracts
-- [ ] Create migration for the new domain schema
-- [ ] Publish stable field names and relations for frontend/integration work
-- [ ] Keep naming aligned with `docs/SOFTWARE_CONCEPTION.md`
+- [x] Create migration for the new domain schema
+- [x] Publish stable field names and relations for frontend/integration work
+- [x] Keep naming aligned with `docs/SOFTWARE_CONCEPTION.md`
 - Done means: the team can build against the same model vocabulary without guessing or drift.
 
 ### 3. Read Foundation APIs
-- [ ] `GET /api/courses`
-- [ ] `GET /api/courses/:courseId`
+- [x] `GET /api/courses`
+- [x] `GET /api/courses/:courseId`
 - [ ] `GET /api/courses/:courseId/lessons`
 - [ ] `GET /api/lessons/:lessonId`
 - [ ] `GET /api/courses/:courseId/announcements`
@@ -88,10 +88,10 @@ Validation:
 
 Validation:
 - Branch: `sabri`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Partially complete (schema + migration + core read APIs exist; lessons/announcements read routes still pending)`
+- Merge status: `Merged to main (partial Sprint 01)`
 
 ## P3 - Integration - Jaffal
 
@@ -116,17 +116,17 @@ P3 starts first.
 - Done means: P3 is ready to validate, merge, and stabilize incoming Sprint 01 work.
 
 ### 4. Sprint 01 Acceptance Gate
-- [ ] Run branch review and merge checks for P1 and P2
-- [ ] Integrate accepted P1 and P2 work into the protected shell
+- [x] Run branch review and merge checks for P1 and P2
+- [x] Integrate accepted P1 and P2 work into the protected shell
 - [ ] Validate role-aware navigation against accepted read-side routes
 - Done means: accepted Sprint 01 work behaves as one protected read-side MVP slice.
 
 Validation:
 - Branch: `jaffal`
-- Reviewer:
-- Review date:
-- Result:
-- Merge status:
+- Reviewer: `jaffal`
+- Review date: `2026-05-10`
+- Result: `Mostly complete (integration foundation done; final acceptance waits for missing P1/P2 read routes)`
+- Merge status: `Merged to main`
 
 ## Dependency Gate For Sprint 02
 
