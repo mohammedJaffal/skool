@@ -7,15 +7,17 @@ datasource db {
 }
 
 enum UserRole {
-  LEARNER
-  TEACHER
+  MEMBER
+  OWNER
   ADMIN
 }
 
-enum CourseStatus {
+enum CommunityStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+
+  @@map("CourseStatus")
 }
 
 enum MembershipStatus {
@@ -40,10 +42,12 @@ enum JoinRequestStatus {
   CANCELLED
 }
 
-enum AnnouncementStatus {
+enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+
+  @@map("AnnouncementStatus")
 }
 
 model User {
@@ -53,197 +57,213 @@ model User {
   emailVerified    DateTime?
   image            String?
   passwordHash     String?
+  failedSignInAttempts Int             @default(0)
+  signInLockedAt   DateTime?
   birthDate        DateTime?
-  role             UserRole            @default(LEARNER)
+  role             UserRole            @default(MEMBER)
   accounts         Account[]
   sessions         Session[]
-  teacherProfile   TeacherProfile?
-  learnerProfile   LearnerProfile?
-  coursesOwned     Course[]            @relation("CourseTeacher")
-  courseMemberships CourseMembership[] @relation("MembershipLearner")
-  invitationsSent  CourseInvitation[]  @relation("InvitationTeacher")
-  invitationsReceived CourseInvitation[] @relation("InvitationLearner")
-  joinRequests     CourseJoinRequest[] @relation("JoinRequestLearner")
-  reviewedRequests CourseJoinRequest[] @relation("JoinRequestReviewer")
-  announcements    Announcement[]
+  userProfile      UserProfile?
+  ownedCommunities Community[]            @relation("CourseTeacher")
+  communityMemberships CommunityMembership[] @relation("MembershipLearner")
+  sentInvitations  CommunityInvitation[]  @relation("InvitationTeacher")
+  receivedInvitations CommunityInvitation[] @relation("InvitationLearner")
+  communityJoinRequests CommunityJoinRequest[] @relation("JoinRequestLearner")
+  reviewedJoinRequests CommunityJoinRequest[] @relation("JoinRequestReviewer")
+  posts            CommunityPost[]
   comments         Comment[]
-  evaluations      CourseEvaluation[]
-  lessonProgress   LessonProgress[]
+  evaluations      CommunityEvaluation[]
+  classroomItemProgress ClassroomItemProgress[]
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 }
 
-model TeacherProfile {
+model UserProfile {
   id        String   @id @default(cuid())
   userId    String   @unique
-  specialty String
+  specialty String?
+  track     String?
   bio       String?  @db.Text
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("UserProfile")
 }
 
-model LearnerProfile {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  track     String
-  bio       String?  @db.Text
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Course {
+model Community {
   id            String             @id @default(cuid())
   title         String
   slug          String             @unique
   description   String             @db.Text
   type          String
-  status        CourseStatus       @default(DRAFT)
-  teacherId     String
-  teacher       User               @relation("CourseTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  lessons       Lesson[]
-  memberships   CourseMembership[]
-  invitations   CourseInvitation[]
-  joinRequests  CourseJoinRequest[]
-  announcements Announcement[]
-  evaluations   CourseEvaluation[]
+  status        CommunityStatus    @default(DRAFT)
+  ownerId       String             @map("teacherId")
+  owner         User               @relation("CourseTeacher", fields: [ownerId], references: [id], onDelete: Cascade)
+  classroomItems ClassroomItem[]
+  documents     CommunityDocument[]
+  memberships   CommunityMembership[]
+  invitations   CommunityInvitation[]
+  accessRequests CommunityJoinRequest[]
+  posts         CommunityPost[]
+  evaluations   CommunityEvaluation[]
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
-  @@index([teacherId])
+  @@index([ownerId])
   @@index([status])
+  @@map("Course")
 }
 
-model Lesson {
+model ClassroomItem {
   id            String           @id @default(cuid())
-  courseId      String
-  course        Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  communityId   String           @map("courseId")
+  community     Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
   title         String
   content       String           @db.Text
   contentType   String
   position      Int
-  progressItems LessonProgress[]
+  progressItems ClassroomItemProgress[]
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
-  @@unique([courseId, position])
-  @@index([courseId])
+  @@unique([communityId, position])
+  @@index([communityId])
+  @@map("Lesson")
 }
 
-model CourseMembership {
+model CommunityMembership {
   id        String           @id @default(cuid())
-  courseId  String
-  learnerId String
+  communityId  String        @map("courseId")
+  memberId String            @map("learnerId")
   status    MembershipStatus @default(PENDING)
   joinedAt  DateTime         @default(now())
   endedAt   DateTime?
-  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  learner   User             @relation("MembershipLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+  community Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  member    User             @relation("MembershipLearner", fields: [memberId], references: [id], onDelete: Cascade)
 
-  @@unique([courseId, learnerId])
-  @@index([learnerId])
+  @@unique([communityId, memberId])
+  @@index([memberId])
   @@index([status])
+  @@map("CourseMembership")
 }
 
-model CourseInvitation {
+model CommunityInvitation {
   id          String           @id @default(cuid())
-  courseId    String
-  teacherId   String
-  learnerId   String
+  communityId String           @map("courseId")
+  ownerId     String           @map("teacherId")
+  memberId    String           @map("learnerId")
   status      InvitationStatus @default(PENDING)
   sentAt      DateTime         @default(now())
   respondedAt DateTime?
-  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher     User             @relation("InvitationTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  learner     User             @relation("InvitationLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+  community   Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  owner       User             @relation("InvitationTeacher", fields: [ownerId], references: [id], onDelete: Cascade)
+  member      User             @relation("InvitationLearner", fields: [memberId], references: [id], onDelete: Cascade)
 
-  @@index([courseId])
-  @@index([teacherId])
-  @@index([learnerId])
+  @@index([communityId])
+  @@index([ownerId])
+  @@index([memberId])
   @@index([status])
+  @@map("CourseInvitation")
 }
 
-model CourseJoinRequest {
+model CommunityJoinRequest {
   id           String            @id @default(cuid())
-  courseId     String
-  learnerId    String
+  communityId  String            @map("courseId")
+  memberId     String            @map("learnerId")
   status       JoinRequestStatus @default(PENDING)
   createdAt    DateTime          @default(now())
   reviewedAt   DateTime?
   reviewedById String?
-  course       Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  learner      User              @relation("JoinRequestLearner", fields: [learnerId], references: [id], onDelete: Cascade)
+  community    Community         @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  member       User              @relation("JoinRequestLearner", fields: [memberId], references: [id], onDelete: Cascade)
   reviewedBy   User?             @relation("JoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
 
-  @@index([courseId])
-  @@index([learnerId])
+  @@index([communityId])
+  @@index([memberId])
   @@index([status])
   @@index([reviewedById])
+  @@map("CourseJoinRequest")
 }
 
-model Announcement {
+model CommunityPost {
   id          String             @id @default(cuid())
-  courseId    String
+  communityId String             @map("courseId")
   authorId    String
   title       String
   content     String             @db.Text
-  status      AnnouncementStatus @default(DRAFT)
+  status      PostStatus         @default(DRAFT)
   publishedAt DateTime?
-  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  community   Community          @relation(fields: [communityId], references: [id], onDelete: Cascade)
   author      User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments    Comment[]
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
-  @@index([courseId])
+  @@index([communityId])
   @@index([authorId])
   @@index([status])
+  @@map("Announcement")
 }
 
 model Comment {
   id             String       @id @default(cuid())
-  announcementId String
+  postId         String       @map("announcementId")
   authorId       String
   content        String       @db.Text
-  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  post           CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@index([announcementId])
+  @@index([postId])
   @@index([authorId])
 }
 
-model CourseEvaluation {
+model CommunityEvaluation {
   id        String   @id @default(cuid())
-  courseId  String
-  learnerId String
+  communityId  String @map("courseId")
+  memberId String     @map("learnerId")
   rating    Int
   feedback  String?  @db.Text
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  learner   User     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  community Community   @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  member    User        @relation(fields: [memberId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([courseId, learnerId])
-  @@index([learnerId])
+  @@unique([communityId, memberId])
+  @@index([memberId])
+  @@map("CourseEvaluation")
 }
 
-model LessonProgress {
+model ClassroomItemProgress {
   id           String   @id @default(cuid())
-  lessonId     String
-  learnerId    String
+  classroomItemId String @map("lessonId")
+  memberId    String     @map("learnerId")
   completed    Boolean  @default(false)
   completedAt  DateTime?
   lastViewedAt DateTime?
-  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  learner      User     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  classroomItem ClassroomItem   @relation(fields: [classroomItemId], references: [id], onDelete: Cascade)
+  member       User             @relation(fields: [memberId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@unique([lessonId, learnerId])
-  @@index([learnerId])
+  @@unique([classroomItemId, memberId])
+  @@index([memberId])
+  @@map("LessonProgress")
+}
+
+model CommunityDocument {
+  id        String   @id @default(cuid())
+  communityId  String @map("courseId")
+  label     String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  community Community   @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@index([communityId])
+  @@map("CourseDocument")
 }
 
 model Account {

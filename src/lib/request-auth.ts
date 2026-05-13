@@ -1,4 +1,4 @@
-import type { Course, UserRole } from "@prisma/client";
+import type { Community as CommunityRecord, UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
@@ -24,9 +24,9 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   return {
     id: session.user.id,
     role:
-      session.user.role === "ADMIN" || session.user.role === "TEACHER"
+      session.user.role === "ADMIN" || session.user.role === "OWNER"
         ? session.user.role
-        : "LEARNER",
+        : "MEMBER",
     email: session.user.email,
     name: session.user.name,
   };
@@ -39,55 +39,69 @@ export function hasRole(
   return Boolean(user && roles.includes(user.role));
 }
 
-export async function getManagedCourse(
-  courseId: string,
+export async function getManagedCommunity(
+  communityId: string,
   user: SessionUser,
-): Promise<Course | null> {
-  const course = await db.course.findUnique({
-    where: { id: courseId },
+): Promise<CommunityRecord | null> {
+  const community = await db.community.findUnique({
+    where: { id: communityId },
   });
 
-  if (!course) {
+  if (!community) {
     return null;
   }
 
-  if (user.role === "ADMIN" || course.teacherId === user.id) {
-    return course;
+  if (user.role === "ADMIN" || community.ownerId === user.id) {
+    return community;
   }
 
   return null;
 }
 
-export async function hasActiveCourseAccess(
-  courseId: string,
+export async function hasActiveCommunityAccess(
+  communityId: string,
   user: SessionUser,
 ) {
   if (user.role === "ADMIN") {
     return true;
   }
 
-  const course = await db.course.findUnique({
-    where: { id: courseId },
-    select: { teacherId: true },
+  const community = await db.community.findUnique({
+    where: { id: communityId },
+    select: { ownerId: true },
   });
 
-  if (!course) {
+  if (!community) {
     return false;
   }
 
-  if (course.teacherId === user.id) {
+  if (community.ownerId === user.id) {
     return true;
   }
 
-  const membership = await db.courseMembership.findUnique({
+  const membership = await db.communityMembership.findUnique({
     where: {
-      courseId_learnerId: {
-        courseId,
-        learnerId: user.id,
+      communityId_memberId: {
+        communityId: communityId,
+        memberId: user.id,
       },
     },
     select: { status: true },
   });
 
   return membership?.status === "ACTIVE";
+}
+
+export async function getManagedCourse(
+  communityId: string,
+  user: SessionUser,
+): Promise<CommunityRecord | null> {
+  return getManagedCommunity(communityId, user);
+}
+
+export async function hasActiveCourseAccess(
+  communityId: string,
+  user: SessionUser,
+) {
+  return hasActiveCommunityAccess(communityId, user);
 }

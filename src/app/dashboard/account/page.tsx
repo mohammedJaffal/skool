@@ -12,8 +12,7 @@ export default async function AccountPage() {
   const user = await db.user.findUnique({
     where: { id: session.user.id },
     include: {
-      teacherProfile: true,
-      learnerProfile: true,
+      userProfile: true,
     },
   });
 
@@ -26,10 +25,10 @@ export default async function AccountPage() {
       role={user.role}
       name={user.name ?? ""}
       email={user.email ?? ""}
-      bio={user.teacherProfile?.bio ?? user.learnerProfile?.bio ?? ""}
-      specialty={user.teacherProfile?.specialty ?? ""}
-      track={user.learnerProfile?.track ?? ""}
+      birthDate={user.birthDate?.toISOString().slice(0, 10) ?? ""}
+      bio={user.userProfile?.bio ?? ""}
+      specialty={user.userProfile?.specialty ?? ""}
+      track={user.userProfile?.track ?? ""}
     />
   );
 }
-

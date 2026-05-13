@@ -7,6 +7,7 @@ type AccountSettingsProps = {
   role: string;
   name: string;
   email: string;
+  birthDate: string;
   bio: string;
   specialty: string;
   track: string;
@@ -16,21 +17,35 @@ export function AccountSettings({
   role,
   name: initialName,
   email,
+  birthDate: initialBirthDate,
   bio: initialBio,
   specialty: initialSpecialty,
   track: initialTrack,
 }: AccountSettingsProps) {
   const [name, setName] = useState(initialName);
+  const [birthDate, setBirthDate] = useState(initialBirthDate);
   const [bio, setBio] = useState(initialBio);
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [track, setTrack] = useState(initialTrack);
   const [status, setStatus] = useState("");
 
   async function saveProfile() {
+    const noChanges =
+      name === initialName &&
+      birthDate === initialBirthDate &&
+      bio === initialBio &&
+      specialty === initialSpecialty &&
+      track === initialTrack;
+
+    if (noChanges) {
+      setStatus("No profile changes detected.");
+      return;
+    }
+
     const response = await fetch("/api/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, bio, specialty, track }),
+      body: JSON.stringify({ name, birthDate, bio, specialty, track }),
     });
 
     const payload = (await response.json().catch(() => null)) as
@@ -96,6 +111,16 @@ export function AccountSettings({
         </label>
 
         <label className="block space-y-2">
+          <span className="text-sm font-medium">Birth date</span>
+          <input
+            value={birthDate}
+            type="date"
+            onChange={(event) => setBirthDate(event.target.value)}
+            className="w-full rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none"
+          />
+        </label>
+
+        <label className="block space-y-2">
           <span className="text-sm font-medium">Bio</span>
           <textarea
             value={bio}
@@ -105,7 +130,7 @@ export function AccountSettings({
           />
         </label>
 
-        {role === "TEACHER" ? (
+        {role === "OWNER" ? (
           <label className="block space-y-2">
             <span className="text-sm font-medium">Specialty</span>
             <input
@@ -116,7 +141,7 @@ export function AccountSettings({
           </label>
         ) : null}
 
-        {role === "LEARNER" ? (
+        {role === "MEMBER" ? (
           <label className="block space-y-2">
             <span className="text-sm font-medium">Track</span>
             <input

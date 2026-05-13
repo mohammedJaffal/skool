@@ -12,12 +12,12 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const { requestId } = await params;
-  const joinRequest = await db.courseJoinRequest.findUnique({
+  const joinRequest = await db.communityJoinRequest.findUnique({
     where: { id: requestId },
     include: {
-      course: {
+      community: {
         select: {
-          teacherId: true,
+          ownerId: true,
         },
       },
     },
@@ -37,21 +37,21 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const isTeacherSide =
-    user.role === "ADMIN" || joinRequest.course.teacherId === user.id;
-  const isLearnerSide = joinRequest.learnerId === user.id;
+    user.role === "ADMIN" || joinRequest.community.ownerId === user.id;
+  const isLearnerSide = joinRequest.memberId === user.id;
 
   if (
     (status === "ACCEPTED" || status === "REJECTED") &&
     !isTeacherSide
   ) {
-    return jsonError("Only the teacher or admin can review requests.", 403);
+    return jsonError("Only the owner or admin can review requests.", 403);
   }
 
   if (status === "CANCELLED" && !isLearnerSide && !isTeacherSide) {
     return jsonError("You cannot cancel this request.", 403);
   }
 
-  const updated = await db.courseJoinRequest.update({
+  const updated = await db.communityJoinRequest.update({
     where: { id: joinRequest.id },
     data: {
       status,
@@ -62,11 +62,11 @@ export async function PATCH(request: Request, { params }: Params) {
   });
 
   if (status === "ACCEPTED") {
-    await db.courseMembership.upsert({
+    await db.communityMembership.upsert({
       where: {
-        courseId_learnerId: {
-          courseId: joinRequest.courseId,
-          learnerId: joinRequest.learnerId,
+        communityId_memberId: {
+          communityId: joinRequest.communityId,
+          memberId: joinRequest.memberId,
         },
       },
       update: {
@@ -74,8 +74,8 @@ export async function PATCH(request: Request, { params }: Params) {
         endedAt: null,
       },
       create: {
-        courseId: joinRequest.courseId,
-        learnerId: joinRequest.learnerId,
+        communityId: joinRequest.communityId,
+        memberId: joinRequest.memberId,
         status: "ACTIVE",
       },
     });

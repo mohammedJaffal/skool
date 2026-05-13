@@ -36,17 +36,26 @@ export default async function HomePage() {
             </Link>
           </p>
 
-          <div className="mx-auto mt-8 max-w-[650px] rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-4 shadow-[0_3px_14px_rgba(0,0,0,0.08)]">
+          <form
+            action="/dashboard/courses"
+            method="GET"
+            className="mx-auto mt-8 max-w-[650px] rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-4 shadow-[0_3px_14px_rgba(0,0,0,0.08)]"
+          >
             <div className="flex items-center gap-4">
               <span className="text-3xl text-[color:var(--muted)]">⌕</span>
               <input
-                readOnly
-                value=""
-                placeholder="Search for anything"
+                name="query"
+                placeholder="Search for a course"
                 className="w-full bg-transparent text-xl font-medium outline-none placeholder:text-[color:var(--muted)] md:text-3xl"
               />
+              <button
+                type="submit"
+                className="rounded-[10px] bg-[color:var(--foreground)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Search
+              </button>
             </div>
-          </div>
+          </form>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             {categoryChips.map((chip, index) => (
@@ -69,7 +78,7 @@ export default async function HomePage() {
           {communities.map((community, index) => (
             <Link
               key={community.slug}
-              href={`/communities/${community.slug}`}
+              href={`/communities/${community.slug}/about`}
               className="block overflow-hidden rounded-[8px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] transition hover:shadow-[0_3px_14px_rgba(0,0,0,0.08)]"
             >
               <div className="relative h-[176px] overflow-hidden bg-[#1a1d29]">

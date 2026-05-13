@@ -4,6 +4,35 @@ import { getSessionUser, jsonError } from "@/lib/request-auth";
 
 type Params = { params: Promise<{ userId: string }> };
 
+export async function GET(_request: Request, { params }: Params) {
+  const user = await getSessionUser();
+
+  if (user?.role !== "ADMIN") {
+    return jsonError("Only admins can inspect users.", 403);
+  }
+
+  const { userId } = await params;
+  const target = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      userProfile: true,
+      _count: {
+        select: {
+          ownedCommunities: true,
+          communityMemberships: true,
+          receivedInvitations: true,
+        },
+      },
+    },
+  });
+
+  if (!target) {
+    return jsonError("User not found.", 404);
+  }
+
+  return NextResponse.json({ user: target });
+}
+
 export async function DELETE(_request: Request, { params }: Params) {
   const user = await getSessionUser();
 
@@ -23,4 +52,3 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   return NextResponse.json({ success: true, userId });
 }
-

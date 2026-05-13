@@ -8,7 +8,7 @@ export default async function DashboardLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
   const userName = session?.user?.name ?? session?.user?.email ?? undefined;
-  const role = session?.user?.role ?? "LEARNER";
+  const role = session?.user?.role ?? "MEMBER";
 
   return (
     <AppShell userName={userName} role={role}>

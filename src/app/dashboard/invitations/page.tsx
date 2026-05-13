@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { InvitationsWorkspace } from "@/components/invitations/invitations-workspace";
-import { listCourseCards } from "@/lib/platform-data";
+import { listCommunityCards } from "@/lib/platform-data";
 
 export default async function InvitationsPage() {
   const session = await auth();
@@ -10,38 +10,42 @@ export default async function InvitationsPage() {
     return null;
   }
 
-  const [invitations, joinRequests, memberships, courses] = await Promise.all([
-    db.courseInvitation.findMany({
-      where: { learnerId: session.user.id },
+  const [invitations, communityJoinRequests, memberships, communities] = await Promise.all([
+    db.communityInvitation.findMany({
+      where: { memberId: session.user.id },
       orderBy: { sentAt: "desc" },
       include: {
-        course: { select: { id: true, title: true } },
-        teacher: { select: { name: true, email: true } },
+        community: { select: { id: true, title: true } },
+        owner: { select: { name: true, email: true } },
       },
     }),
-    db.courseJoinRequest.findMany({
-      where: { learnerId: session.user.id },
+    db.communityJoinRequest.findMany({
+      where: { memberId: session.user.id },
       orderBy: { createdAt: "desc" },
     }),
-    db.courseMembership.findMany({
-      where: { learnerId: session.user.id, status: "ACTIVE" },
-      select: { courseId: true },
+    db.communityMembership.findMany({
+      where: { memberId: session.user.id, status: "ACTIVE" },
+      select: { communityId: true },
     }),
-    listCourseCards(),
+    listCommunityCards(),
   ]);
 
   return (
     <InvitationsWorkspace
-      invitations={invitations}
-      joinRequests={joinRequests}
-      activeCourseIds={memberships.map((membership) => membership.courseId)}
-      courses={courses.map((course) => ({
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        lessonCount: course.lessonCount,
+      invitations={invitations.map((invitation) => ({
+        id: invitation.id,
+        status: invitation.status,
+        community: invitation.community,
+        owner: invitation.owner,
+      }))}
+      communityJoinRequests={communityJoinRequests}
+      activeCommunityIds={memberships.map((membership) => membership.communityId)}
+      communities={communities.map((community) => ({
+        id: community.id,
+        title: community.title,
+        description: community.description,
+        classroomItemCount: community.classroomItemCount,
       }))}
     />
   );
 }
-

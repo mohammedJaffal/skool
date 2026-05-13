@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { TeacherWorkspace } from "@/components/teacher/teacher-workspace";
+import { OwnerCommunityWorkspace } from "@/components/owner/owner-community-workspace";
 
 export default async function TeachPage() {
   const session = await auth();
@@ -10,27 +10,30 @@ export default async function TeachPage() {
     return null;
   }
 
-  const role = session.user.role ?? "LEARNER";
+  const role = session.user.role ?? "MEMBER";
 
-  if (role !== "TEACHER" && role !== "ADMIN") {
+  if (role !== "OWNER" && role !== "ADMIN") {
     return (
       <section className="rounded-[8px] border border-[color:var(--line)] bg-white p-6 shadow-sm">
-        <h1 className="mt-2 text-2xl font-bold">Teacher access required</h1>
+        <h1 className="mt-2 text-2xl font-bold">Owner access required</h1>
         <p className="mt-2 text-sm text-[color:var(--muted)]">
-          This workspace is reserved for teacher or admin accounts.
+          This workspace is reserved for owner or admin accounts.
         </p>
       </section>
     );
   }
 
-  const courses = await db.course.findMany({
-    where: role === "ADMIN" ? undefined : { teacherId: session.user.id },
+  const communities = await db.community.findMany({
+    where: role === "ADMIN" ? undefined : { ownerId: session.user.id },
     orderBy: { createdAt: "desc" },
     include: {
-      lessons: {
+      documents: {
+        orderBy: { createdAt: "desc" },
+      },
+      classroomItems: {
         orderBy: { position: "asc" },
       },
-      announcements: {
+      posts: {
         orderBy: { createdAt: "desc" },
       },
     },
@@ -45,7 +48,29 @@ export default async function TeachPage() {
         <span>&larr;</span>
         <span>Back to workspace</span>
       </Link>
-      <TeacherWorkspace courses={courses} />
+      <OwnerCommunityWorkspace
+        communities={communities.map((community) => ({
+          id: community.id,
+          title: community.title,
+          description: community.description,
+          type: community.type,
+          status: community.status,
+          documents: community.documents,
+          classroomItems: community.classroomItems.map((lesson) => ({
+            id: lesson.id,
+            title: lesson.title,
+            content: lesson.content,
+            contentType: lesson.contentType,
+            position: lesson.position,
+          })),
+          posts: community.posts.map((announcement) => ({
+            id: announcement.id,
+            title: announcement.title,
+            content: announcement.content,
+            status: announcement.status,
+          })),
+        }))}
+      />
     </div>
   );
 }

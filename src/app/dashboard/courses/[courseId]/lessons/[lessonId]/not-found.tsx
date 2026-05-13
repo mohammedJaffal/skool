@@ -8,13 +8,13 @@ export default function LessonNotFound() {
       </p>
       <h1 className="mt-2 text-2xl font-bold">Lesson not found</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
-        The lesson link is invalid or the item has been removed from the course.
+        The classroom item link is invalid or the item has been removed from the community.
       </p>
       <Link
-        href="/dashboard/courses"
+        href="/dashboard/communities"
         className="mt-4 inline-block rounded-full border border-[color:var(--line)] bg-white px-4 py-2 text-sm font-semibold"
       >
-        Back to classroom
+        Back to communities
       </Link>
     </section>
   );

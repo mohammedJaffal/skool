@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { AdminCourseManager } from "@/components/admin/admin-course-manager";
+import { AdminCommunityManager } from "@/components/admin/admin-community-manager";
+import { AdminUserManager } from "@/components/admin/admin-user-manager";
 
 export default async function AdminPage() {
   const session = await auth();
-  const role = session?.user?.role ?? "LEARNER";
+  const role = session?.user?.role ?? "MEMBER";
   const isAdmin = role === "ADMIN";
 
   return (
@@ -15,9 +16,8 @@ export default async function AdminPage() {
         </p>
         <h1 className="text-2xl font-bold">Admin Panel</h1>
         <p className="text-sm text-[color:var(--muted)]">
-          Manage course drafts through <code>/api/admin/courses</code> and keep
-          the admin flow ready while the full classroom database is still in
-          progress.
+          Consult users, delete users when needed, and keep community governance
+          available in the same protected workspace.
         </p>
       </div>
 
@@ -40,7 +40,10 @@ export default async function AdminPage() {
           </Link>
         </div>
       ) : (
-        <AdminCourseManager />
+        <div className="space-y-6">
+          <AdminUserManager />
+          <AdminCommunityManager />
+        </div>
       )}
     </section>
   );

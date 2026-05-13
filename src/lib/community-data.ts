@@ -49,6 +49,12 @@ export type CommunityData = {
   threads: CommunityThread[];
 };
 
+export type CommunityMemberPreview = {
+  name: string;
+  role: string;
+  note: string;
+};
+
 export const COMMUNITIES: CommunityData[] = [
   {
     slug: "campus-builders",
@@ -56,9 +62,9 @@ export const COMMUNITIES: CommunityData[] = [
     name: "Campus Builders",
     heroImage: "https://picsum.photos/seed/campus-builders/1200/700",
     shortDescription:
-      "Project-first learning with guided lessons, branch reviews, and weekly shipping targets.",
+      "Project-first learning with guided classroomItems, branch reviews, and weekly shipping targets.",
     description:
-      "Campus Builders is the practical workspace for people who learn by shipping. Members work through structured lessons, share branch updates, and get pushed toward real implementation instead of passive watching.",
+      "Campus Builders is the practical workspace for people who learn by shipping. Members work through structured classroomItems, share branch updates, and get pushed toward real implementation instead of passive watching.",
     offerSummary:
       "Includes a guided classroom, branch review rituals, weekly build checkpoints, and a public discussion feed.",
     priceLabel: "Free",
@@ -461,10 +467,10 @@ export async function getCommunityBySlugOrCourse(slug: string) {
     return staticCommunity;
   }
 
-  const course = await db.course.findUnique({
+  const course = await db.community.findUnique({
     where: { slug },
     include: {
-      teacher: {
+      owner: {
         select: {
           name: true,
           email: true,
@@ -483,7 +489,7 @@ export async function getCommunityBySlugOrCourse(slug: string) {
   }
 
   const teacherName =
-    course.teacher.name ?? course.teacher.email?.split("@")[0] ?? "Campus Digital";
+    course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
 
   return {
     slug: course.slug,
@@ -492,15 +498,15 @@ export async function getCommunityBySlugOrCourse(slug: string) {
     heroImage: `https://picsum.photos/seed/${encodeURIComponent(course.slug)}/1200/700`,
     shortDescription: course.description,
     description: course.description,
-    offerSummary: `Guided by ${teacherName}. Includes classroom lessons, announcements, and member access.`,
+    offerSummary: `Guided by ${teacherName}. Includes classroom classroomItems, posts, and member access.`,
     priceLabel: "Free",
     memberCount: String(course._count.memberships),
     onlineCount: "0",
     coverTone: "#d9d3c7",
     topics: [course.type, "Classroom", "Discussion"],
     highlights: [
-      "Structured classroom lessons",
-      "Teacher announcements",
+      "Structured classroom classroomItems",
+      "Teacher posts",
       "Member access and progress tracking",
     ],
     rules: [
@@ -519,7 +525,7 @@ export async function getCommunityBySlugOrCourse(slug: string) {
       {
         id: `${course.slug}-welcome`,
         authorName: teacherName,
-        authorInitials: initialsFromName(teacherName, course.teacher.email),
+        authorInitials: initialsFromName(teacherName, course.owner.email),
         postedAt: "today",
         headline: `Welcome to ${course.title}`,
         body: "Start with the classroom, post blockers clearly, and keep progress visible for review.",
@@ -531,10 +537,10 @@ export async function getCommunityBySlugOrCourse(slug: string) {
 }
 
 export async function listCommunityCards() {
-  const courses = await db.course.findMany({
+  const courses = await db.community.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      teacher: {
+      owner: {
         select: {
           name: true,
           email: true,
@@ -542,7 +548,7 @@ export async function listCommunityCards() {
       },
       _count: {
         select: {
-          lessons: true,
+          classroomItems: true,
           memberships: true,
         },
       },
@@ -554,7 +560,7 @@ export async function listCommunityCards() {
       (community) => community.accessCourseSlug === course.slug,
     );
     const teacherName =
-      course.teacher.name ?? course.teacher.email?.split("@")[0] ?? "Campus Digital";
+      course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
 
     return {
       slug: fallback?.slug ?? course.slug,
@@ -570,7 +576,7 @@ export async function listCommunityCards() {
         fallback?.heroImage ??
         `https://picsum.photos/seed/${encodeURIComponent(course.slug)}/1200/700`,
       courseTitle: course.title,
-      courseMeta: `${course._count.lessons} lesson${course._count.lessons === 1 ? "" : "s"}`,
+      courseMeta: `${course._count.classroomItems} lesson${course._count.classroomItems === 1 ? "" : "s"}`,
       latestHeadline:
         fallback?.threads[0]?.headline ?? `New classroom by ${teacherName}`,
       latestAuthor: fallback?.threads[0]?.authorName ?? teacherName,
@@ -621,7 +627,7 @@ export async function listStaticCommunityCards() {
       heroImage: community.heroImage,
       courseTitle: course?.title ?? "Structured classroom",
       courseMeta: course
-        ? `${course.lessonCount} lessons`
+        ? `${course.classroomItemCount} classroomItems`
         : "Guided modules",
       latestHeadline: latestThread?.headline ?? "",
       latestAuthor: latestThread?.authorName ?? "",
@@ -645,6 +651,63 @@ export async function getCommunityClassroomPreview(slug: string) {
   return getCourseDetailById(courseCard.id);
 }
 
+export async function getCommunityMembersPreview(
+  slug: string,
+): Promise<CommunityMemberPreview[]> {
+  const community = getCommunityBySlug(slug);
+  const accessCourseSlug = community?.accessCourseSlug ?? slug;
+
+  const course = await db.community.findUnique({
+    where: { slug: accessCourseSlug },
+    include: {
+      owner: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      memberships: {
+        where: { status: "ACTIVE" },
+        include: {
+          member: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { joinedAt: "desc" },
+        take: 8,
+      },
+    },
+  });
+
+  if (!course) {
+    return community?.sampleMembers ?? [];
+  }
+
+  const teacherName =
+    course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
+
+  const liveMembers = course.memberships.map((membership) => ({
+    name:
+      membership.member.name ??
+      membership.member.email?.split("@")[0] ??
+      "Campus Member",
+    role: "Member",
+    note: "Active learner in the classroom.",
+  }));
+
+  return [
+    {
+      name: teacherName,
+      role: "Teacher",
+      note: "Runs the classroom and reviews learner progress.",
+    },
+    ...liveMembers,
+  ];
+}
+
 export async function isCommunityMember(
   slug: string,
   viewer?: { id?: string | null; role?: string | null } | null,
@@ -656,11 +719,11 @@ export async function isCommunityMember(
   const community = getCommunityBySlug(slug);
   const accessCourseSlug = community?.accessCourseSlug ?? slug;
 
-  const course = await db.course.findUnique({
+  const course = await db.community.findUnique({
     where: { slug: accessCourseSlug },
     select: {
       id: true,
-      teacherId: true,
+      ownerId: true,
     },
   });
 
@@ -668,15 +731,15 @@ export async function isCommunityMember(
     return viewer.role === "ADMIN";
   }
 
-  if (viewer.role === "ADMIN" || course.teacherId === viewer.id) {
+  if (viewer.role === "ADMIN" || course.ownerId === viewer.id) {
     return true;
   }
 
-  const membership = await db.courseMembership.findUnique({
+  const membership = await db.communityMembership.findUnique({
     where: {
-      courseId_learnerId: {
-        courseId: course.id,
-        learnerId: viewer.id,
+      communityId_memberId: {
+        communityId: course.id,
+        memberId: viewer.id,
       },
     },
     select: { status: true },

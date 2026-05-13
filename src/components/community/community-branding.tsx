@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { CommunityAuthLink } from "@/components/community/community-auth-link";
 import type { CommunityData } from "@/lib/community-data";
+import { CommunityJoinButton } from "@/components/community/community-join-button";
 
 function initials(name: string) {
   return name
@@ -72,17 +74,19 @@ export function CommunityCover({
 
 export function CommunitySideCard({
   community,
-  member,
-  actionHref,
-  signedIn,
+  communityId,
+  signedIn = false,
+  isMember = false,
 }: {
   community: CommunityData;
-  member: boolean;
-  actionHref: string;
-  signedIn: boolean;
+  communityId?: string | null;
+  signedIn?: boolean;
+  isMember?: boolean;
 }) {
+  const isFree = community.priceLabel.trim().toLowerCase() === "free";
+
   return (
-    <aside className="rounded-[8px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+    <aside className="self-start rounded-[8px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] p-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
       <CommunityCover community={community} className="min-h-[148px]" />
 
       <div className="mt-4">
@@ -134,12 +138,18 @@ export function CommunitySideCard({
         ))}
       </div>
 
-      <Link
-        href={actionHref}
-        className="mt-5 flex h-12 items-center justify-center rounded-[8px] bg-[#f3cc72] text-sm font-semibold text-[#1f1d1a] transition hover:brightness-95"
-      >
-        {member ? "OPEN GROUP" : signedIn ? "JOIN GROUP" : "LOG IN TO JOIN"}
-      </Link>
+      {communityId ? (
+        <div className="mt-5 border-t border-[color:var(--line)] pt-4">
+          <CommunityJoinButton
+            communityId={communityId}
+            slug={community.slug}
+            signedIn={signedIn}
+            isMember={isMember}
+            isFree={isFree}
+            className="block w-full rounded-[8px] bg-[color:var(--foreground)] px-4 py-3 text-center text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+          />
+        </div>
+      ) : null}
     </aside>
   );
 }
@@ -178,12 +188,10 @@ export function CommunityTopBar({
           </div>
         </div>
 
-        <Link
-          href={signedIn ? "/dashboard" : "/auth/signin"}
+        <CommunityAuthLink
+          signedIn={signedIn}
           className="rounded-[8px] border border-[color:var(--line)] bg-[color:var(--surface-raised)] px-4 py-3 text-sm font-semibold text-[color:var(--muted)]"
-        >
-          {signedIn ? "WORKSPACE" : "LOG IN"}
-        </Link>
+        />
       </div>
     </header>
   );

@@ -6,6 +6,7 @@ import type { CommunityThread } from "@/lib/community-data";
 type CommunityLiveFeedProps = {
   initialThreads: CommunityThread[];
   currentUserName?: string;
+  canPost?: boolean;
 };
 
 function initialsFromName(name: string) {
@@ -22,6 +23,7 @@ function initialsFromName(name: string) {
 export function CommunityLiveFeed({
   initialThreads,
   currentUserName,
+  canPost = false,
 }: CommunityLiveFeedProps) {
   const [threads, setThreads] = useState(initialThreads);
   const [headline, setHeadline] = useState("");
@@ -56,42 +58,52 @@ export function CommunityLiveFeed({
 
   return (
     <div className="space-y-5">
-      <form
-        onSubmit={submitPost}
-        className="rounded-[8px] border border-[color:var(--line)] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-      >
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[color:var(--chip)] text-base font-semibold">
-            {viewerInitials}
+      {canPost ? (
+        <form
+          onSubmit={submitPost}
+          className="rounded-[8px] border border-[color:var(--line)] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[color:var(--chip)] text-base font-semibold">
+              {viewerInitials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <input
+                value={headline}
+                onChange={(event) => setHeadline(event.target.value)}
+                placeholder="Write something"
+                className="w-full rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-4 text-lg font-semibold outline-none placeholder:text-[color:var(--muted)]"
+              />
+              <textarea
+                value={body}
+                onChange={(event) => setBody(event.target.value)}
+                placeholder="Share the route, blocker, result, or question."
+                rows={3}
+                className="mt-3 w-full rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[color:var(--muted)]"
+              />
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <input
-              value={headline}
-              onChange={(event) => setHeadline(event.target.value)}
-              placeholder="Write something"
-              className="w-full rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-4 text-lg font-semibold outline-none placeholder:text-[color:var(--muted)]"
-            />
-            <textarea
-              value={body}
-              onChange={(event) => setBody(event.target.value)}
-              placeholder="Share the route, blocker, result, or question."
-              rows={3}
-              className="mt-3 w-full rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[color:var(--muted)]"
-            />
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-sm text-[color:var(--muted)]">
+              Signed in as {viewerName}
+            </span>
+            <button
+              type="submit"
+              className="rounded-[8px] bg-[color:var(--foreground)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+            >
+              Post
+            </button>
           </div>
-        </div>
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-[color:var(--muted)]">
-            Signed in as {viewerName}
-          </span>
-          <button
-            type="submit"
-            className="rounded-[8px] bg-[color:var(--foreground)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-          >
-            Post
-          </button>
-        </div>
-      </form>
+        </form>
+      ) : (
+        <section className="rounded-[8px] border border-[color:var(--line)] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+          <h2 className="text-lg font-semibold">Community</h2>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--muted)]">
+            You can read the public discussion here. Posting stays available for
+            active members inside the group.
+          </p>
+        </section>
+      )}
 
       <div className="space-y-4">
         {threads.map((thread) => (

@@ -13,15 +13,15 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { courseId } = body as { courseId: string };
+  const { communityId } = body as { communityId: string };
 
-  if (!courseId) {
-    return NextResponse.json({ error: "courseId is required" }, { status: 400 });
+  if (!communityId) {
+    return NextResponse.json({ error: "communityId is required" }, { status: 400 });
   }
 
-  const course = await db.course.findUnique({
-    where: { id: courseId },
-    select: { id: true, teacherId: true },
+  const course = await db.community.findUnique({
+    where: { id: communityId },
+    select: { id: true, ownerId: true },
   });
 
   if (!course) {
@@ -29,24 +29,24 @@ export async function POST(req: Request) {
       success: true,
       message: "Enrollment confirmed!",
       enrollmentId: `enroll_${Date.now()}`,
-      courseId,
+      communityId,
       userId: session.user.id,
       enrolledAt: new Date().toISOString(),
     });
   }
 
-  if (course.teacherId === session.user.id) {
+  if (course.ownerId === session.user.id) {
     return NextResponse.json(
       { error: "Teachers already own their courses." },
       { status: 400 },
     );
   }
 
-  const existingMembership = await db.courseMembership.findUnique({
+  const existingMembership = await db.communityMembership.findUnique({
     where: {
-      courseId_learnerId: {
-        courseId,
-        learnerId: session.user.id,
+      communityId_memberId: {
+        communityId,
+        memberId: session.user.id,
       },
     },
   });
@@ -56,22 +56,22 @@ export async function POST(req: Request) {
       success: true,
       message: "You already have access to this course.",
       enrollmentId: existingMembership.id,
-      courseId,
+      communityId,
       userId: session.user.id,
       enrolledAt: existingMembership.joinedAt.toISOString(),
     });
   }
 
-  const existingRequest = await db.courseJoinRequest.findFirst({
+  const existingRequest = await db.communityJoinRequest.findFirst({
     where: {
-      courseId,
-      learnerId: session.user.id,
+      communityId,
+      memberId: session.user.id,
     },
     orderBy: { createdAt: "desc" },
   });
 
   const joinRequest = existingRequest
-    ? await db.courseJoinRequest.update({
+    ? await db.communityJoinRequest.update({
         where: { id: existingRequest.id },
         data: {
           status: "PENDING",
@@ -79,10 +79,10 @@ export async function POST(req: Request) {
           reviewedById: null,
         },
       })
-    : await db.courseJoinRequest.create({
+    : await db.communityJoinRequest.create({
         data: {
-          courseId,
-          learnerId: session.user.id,
+          communityId,
+          memberId: session.user.id,
           status: "PENDING",
         },
       });
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     success: true,
     message: "Access request submitted.",
     enrollmentId: joinRequest.id,
-    courseId,
+    communityId,
     userId: session.user.id,
     enrolledAt: joinRequest.createdAt.toISOString(),
   });

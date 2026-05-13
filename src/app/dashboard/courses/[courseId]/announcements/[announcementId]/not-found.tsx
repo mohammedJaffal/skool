@@ -8,13 +8,13 @@ export default function AnnouncementNotFound() {
       </p>
       <h1 className="mt-2 text-2xl font-bold">Announcement not found</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
-        The announcement link is invalid or the announcement has been removed.
+        The post link is invalid or the post has been removed.
       </p>
       <Link
-        href="/dashboard/courses"
+        href="/dashboard/communities"
         className="mt-4 inline-block rounded-full border border-[color:var(--line)] bg-white px-4 py-2 text-sm font-semibold"
       >
-        Back to classroom
+        Back to communities
       </Link>
     </section>
   );

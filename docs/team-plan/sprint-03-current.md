@@ -6,11 +6,11 @@ Status: Planned - not active yet
 
 Roadmap anchor:
 - Sprint 03
-- Course access control through memberships, invitations, and join requests
+- Community access control through memberships, invitations, and join requests
 
 Conception impact:
-- Modules: Invitations And Join Requests, Course Catalog And Course Workspace, Lesson Management, Dashboard Shell, Review / Integration / Deployment
-- Entities/APIs: `CourseMembership`, `CourseInvitation`, `CourseJoinRequest`, membership-aware lesson access, invitation and join request routes
+- Modules: Members And Access Control, Classroom, Owner Workspace, Dashboard Shell, Review / Integration / Deployment
+- Entities/APIs: `CommunityMembership`, `Invitation`, `JoinRequest`, membership-aware community access, invitation and join request routes
 
 Workload target:
 - P1 about `125`
@@ -25,101 +25,68 @@ Status rules:
 ## P1 - Frontend - Sadik
 
 ### 1. Join Request UI
-- [x] Join request action on course pages
-- [ ] Pending, accepted, rejected, and blocked UI states
-- [x] Learner-facing feedback screens for access requests
-- Done means: a learner can understand and trigger the course join request flow from the UI.
+- [ ] Join request action on community about pages
+- [ ] Pending, approved, rejected, and blocked UI states
+- [ ] Member-facing feedback screens for access requests
+- Done means: a user can understand and trigger the community join-request flow from the UI.
 
 ### 2. Invitation Inbox UI
-- [x] Invitation list or inbox screen
-- [x] Accept and reject actions in the UI
-- [x] Invitation status rendering
-- Done means: a learner can process course invitations from one clear protected screen.
+- [ ] Invitation list or inbox screen
+- [ ] Accept and decline actions
+- [ ] Stable empty/loading/error states for invitations
+- Done means: an invited user can manage invitations through one clear protected flow.
 
-### 3. Course Members UI
-- [x] Teacher-facing course members page
-- [x] Membership status rendering
-- [x] Teacher action entry points for invitation/review/removal flows
-- Done means: a teacher can see and act on course membership from one course context.
-
-### 4. Access-State Screens
-- [ ] Locked lesson state UI
-- [x] Not-yet-member course access UI
-- [ ] Removed/rejected access state UI
-- Done means: the product clearly communicates course access state instead of failing silently.
-
-Validation:
-- Branch: `sadik`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Mostly complete (learner and teacher access UIs exist; locked/rejected lesson states still open)`
-- Merge status: `Implemented in main`
+### 3. Membership-Aware Access UI
+- [ ] Gated states for community tabs
+- [ ] Clear “already member” and “pending request” feedback
+- [ ] Route-safe member access messaging
+- Done means: the user can clearly tell why a private community or classroom is available or blocked.
 
 ## P2 - Backend - Sabri
 
-### 1. Membership Domain Schema
-- [x] Add `CourseMembership`
-- [x] Add `CourseInvitation`
-- [x] Add `CourseJoinRequest`
-- [x] Create migration and stable relation names
-- Done means: course access control has one clear backend model in Prisma.
+### 1. Membership Domain Foundation
+- [ ] Add or stabilize `CommunityMembership`
+- [ ] Add or stabilize `Invitation`
+- [ ] Add or stabilize `JoinRequest`
+- Done means: access control has a stable backend model aligned with the conception.
 
-### 2. Invitation APIs
-- [x] Teacher create invitation endpoint
-- [x] Learner accept/reject invitation endpoint
-- [x] Stable invitation status contract
-- Done means: invitation lifecycle is usable at MVP level.
+### 2. Access-Control APIs
+- [ ] `POST /api/communities/[communityId]/join-requests`
+- [ ] `PATCH /api/join-requests/[requestId]`
+- [ ] `POST /api/communities/[communityId]/invitations`
+- [ ] `PATCH /api/invitations/[invitationId]`
+- Done means: invitation and join-request flows are usable through stable contracts.
 
-### 3. Join Request APIs
-- [x] Learner create join request endpoint
-- [x] Teacher accept/reject join request endpoint
-- [x] Stable join request status contract
-- Done means: join request lifecycle is usable at MVP level.
-
-### 4. Membership Access Contracts
-- [x] Course membership read contract for teacher/member screens
-- [ ] Lesson access check contract for protected read pages
-- [x] Confirm access-state payloads with P1 and P3
-- Done means: membership-aware frontend and protected route logic can integrate safely.
-
-Validation:
-- Branch: `sabri`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Mostly complete (membership APIs are live; lesson access protection is still open)`
-- Merge status: `Implemented in main`
+### 3. Membership Guards
+- [ ] Membership-aware checks for private community access
+- [ ] Membership-aware checks for classroom access
+- [ ] Stable status handling across membership lifecycle
+- Done means: private community surfaces are protected by real access rules.
 
 ## P3 - Integration - Jaffal
 
-### 1. Membership-Based Lesson Protection
-- [ ] Protect lesson routes based on accepted membership state
-- [x] Handle invitation and join-request edge routes cleanly
-- [ ] Prevent direct access to locked lesson content
-- Done means: protected lesson access follows backend membership rules.
+### 1. Access Guard Integration
+- [ ] Validate membership-aware protection for community and classroom routes
+- [ ] Keep public about pages accessible while private tabs remain protected
+- [ ] Catch role or ownership regressions before merge
+- Done means: public discovery and private membership spaces coexist correctly.
 
-### 2. Route Gating And Navigation Rules
-- [x] Update shell behavior for learner vs teacher access states
-- [x] Keep invitation and request pages coherent inside navigation
-- [x] Prevent dead-end or contradictory route flows
-- Done means: the product guides each role through course access without navigation confusion.
+### 2. Invitation And Request Flow Review
+- [ ] Review accepted P1 and P2 access-control flows together
+- [ ] Standardize obvious access-state UX and route behavior
+- [ ] Verify payload consistency against the conception
+- Done means: Sprint 03 produces one usable gated-community flow.
 
-### 3. Branch Validation And Merge Flow
-- [x] Review accepted P1 and P2 membership work
-- [ ] Integrate access UI, membership APIs, and lesson protection
-- [ ] Validate that course access state is stable enough for next-sprint communication work
-- Done means: Sprint 03 produces one reliable course-access system slice.
-
-Validation:
-- Branch: `jaffal`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Partially complete (access navigation is integrated; lesson protection is still open)`
-- Merge status: `Implemented in main`
+### 3. Acceptance Gate Across Public And Private Paths
+- [ ] Integrate accepted work into one coherent access slice
+- [ ] Validate visitor-to-member transition behavior
+- [ ] Confirm the milestone is ready before feed/community participation work begins
+- Done means: the product can control who enters a community and how.
 
 ## Dependency Gate For Sprint 04
 
 Do not start Sprint 04 until:
-- membership schema and routes are accepted
-- invitation and join request flows work end-to-end
-- lesson access is protected by membership state
-- learners and teachers can see correct access-state screens
+- invitation flow works
+- join request flow works
+- private community access respects membership state
+- classroom access respects membership state

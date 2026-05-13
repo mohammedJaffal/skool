@@ -9,20 +9,20 @@ export default async function ProgressPage() {
     return null;
   }
 
-  const learnerMemberships = await db.courseMembership.findMany({
+  const learnerMemberships = await db.communityMembership.findMany({
     where: {
-      learnerId: session.user.id,
+      memberId: session.user.id,
       status: "ACTIVE",
     },
     include: {
-      course: {
+      community: {
         include: {
-          lessons: {
+          classroomItems: {
             orderBy: { position: "asc" },
           },
           evaluations: {
             where: {
-              learnerId: session.user.id,
+              memberId: session.user.id,
             },
           },
         },
@@ -32,38 +32,38 @@ export default async function ProgressPage() {
 
   const learnerCourses = await Promise.all(
     learnerMemberships.map(async (membership) => {
-      const progress = await db.lessonProgress.findMany({
+      const progress = await db.classroomItemProgress.findMany({
         where: {
-          learnerId: session.user.id,
-          lesson: {
-            courseId: membership.courseId,
+          memberId: session.user.id,
+          classroomItem: {
+            communityId: membership.communityId,
           },
         },
       });
 
       const progressMap = new Map(
-        progress.map((item) => [item.lessonId, item.completed]),
+        progress.map((item) => [item.classroomItemId, item.completed]),
       );
       const completed = progress.filter((item) => item.completed).length;
 
       return {
-        courseId: membership.courseId,
-        title: membership.course.title,
-        totalLessons: membership.course.lessons.length,
+        communityId: membership.communityId,
+        title: membership.community.title,
+        totalLessons: membership.community.classroomItems.length,
         completed,
         percentage:
-          membership.course.lessons.length > 0
-            ? Math.round((completed / membership.course.lessons.length) * 100)
+          membership.community.classroomItems.length > 0
+            ? Math.round((completed / membership.community.classroomItems.length) * 100)
             : 0,
-        lessons: membership.course.lessons.map((lesson) => ({
+        classroomItems: membership.community.classroomItems.map((lesson) => ({
           id: lesson.id,
           title: lesson.title,
           completed: progressMap.get(lesson.id) ?? false,
         })),
-        evaluation: membership.course.evaluations[0]
+        evaluation: membership.community.evaluations[0]
           ? {
-              rating: membership.course.evaluations[0].rating,
-              feedback: membership.course.evaluations[0].feedback,
+              rating: membership.community.evaluations[0].rating,
+              feedback: membership.community.evaluations[0].feedback,
             }
           : null,
       };
@@ -71,24 +71,24 @@ export default async function ProgressPage() {
   );
 
   const teacherCourses =
-    session.user.role === "TEACHER" || session.user.role === "ADMIN"
+    session.user.role === "OWNER" || session.user.role === "ADMIN"
       ? await Promise.all(
           (
-            await db.course.findMany({
+            await db.community.findMany({
               where:
                 session.user.role === "ADMIN"
                   ? undefined
-                  : { teacherId: session.user.id },
+                  : { ownerId: session.user.id },
               orderBy: { createdAt: "desc" },
             })
           ).map(async (course) => {
-            const activeMemberships = await db.courseMembership.findMany({
+            const activeMemberships = await db.communityMembership.findMany({
               where: {
-                courseId: course.id,
+                communityId: course.id,
                 status: "ACTIVE",
               },
               include: {
-                learner: {
+                member: {
                   select: {
                     id: true,
                     name: true,
@@ -98,26 +98,26 @@ export default async function ProgressPage() {
               },
             });
 
-            const totalLessons = await db.lesson.count({
-              where: { courseId: course.id },
+            const totalLessons = await db.classroomItem.count({
+              where: { communityId: course.id },
             });
 
-            const learners = await Promise.all(
+            const members = await Promise.all(
               activeMemberships.map(async (membership) => {
-                const completed = await db.lessonProgress.count({
+                const completed = await db.classroomItemProgress.count({
                   where: {
-                    learnerId: membership.learnerId,
+                    memberId: membership.memberId,
                     completed: true,
-                    lesson: { courseId: course.id },
+                    classroomItem: { communityId: course.id },
                   },
                 });
 
                 return {
-                  learnerId: membership.learnerId,
-                  learnerName:
-                    membership.learner.name ??
-                    membership.learner.email?.split("@")[0] ??
-                    "Learner",
+                  memberId: membership.memberId,
+                  memberName:
+                    membership.member.name ??
+                    membership.member.email?.split("@")[0] ??
+                    "Member",
                   completed,
                   totalLessons,
                   percentage:
@@ -129,9 +129,9 @@ export default async function ProgressPage() {
             );
 
             return {
-              courseId: course.id,
+              communityId: course.id,
               title: course.title,
-              learners,
+              members,
             };
           }),
         )
@@ -144,4 +144,3 @@ export default async function ProgressPage() {
     />
   );
 }
-

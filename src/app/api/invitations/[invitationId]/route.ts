@@ -12,7 +12,7 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const { invitationId } = await params;
-  const invitation = await db.courseInvitation.findUnique({
+  const invitation = await db.communityInvitation.findUnique({
     where: { id: invitationId },
   });
 
@@ -20,7 +20,7 @@ export async function PATCH(request: Request, { params }: Params) {
     return jsonError("Invitation not found.", 404);
   }
 
-  if (invitation.learnerId !== user.id && user.role !== "ADMIN") {
+  if (invitation.memberId !== user.id && user.role !== "ADMIN") {
     return jsonError("You cannot update this invitation.", 403);
   }
 
@@ -33,7 +33,7 @@ export async function PATCH(request: Request, { params }: Params) {
     return jsonError("status is required.", 400);
   }
 
-  const updated = await db.courseInvitation.update({
+  const updated = await db.communityInvitation.update({
     where: { id: invitation.id },
     data: {
       status,
@@ -42,11 +42,11 @@ export async function PATCH(request: Request, { params }: Params) {
   });
 
   if (status === "ACCEPTED") {
-    await db.courseMembership.upsert({
+    await db.communityMembership.upsert({
       where: {
-        courseId_learnerId: {
-          courseId: invitation.courseId,
-          learnerId: invitation.learnerId,
+        communityId_memberId: {
+          communityId: invitation.communityId,
+          memberId: invitation.memberId,
         },
       },
       update: {
@@ -54,8 +54,8 @@ export async function PATCH(request: Request, { params }: Params) {
         endedAt: null,
       },
       create: {
-        courseId: invitation.courseId,
-        learnerId: invitation.learnerId,
+        communityId: invitation.communityId,
+        memberId: invitation.memberId,
         status: "ACTIVE",
       },
     });

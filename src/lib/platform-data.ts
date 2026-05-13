@@ -8,32 +8,39 @@ import {
   getLessonByIdGlobal,
 } from "@/lib/mock-data";
 
-export type CourseCard = {
+export type CommunityCard = {
   id: string;
   slug?: string;
   title: string;
   description: string;
-  instructor: string;
+  ownerName: string;
   level: string;
   duration: string;
   price: number;
   type: string;
   status: string;
-  lessonCount: number;
+  classroomItemCount: number;
 };
 
-export type CourseDetail = CourseCard & {
-  lessons: LessonDetail[];
-};
-
-export type LessonDetail = {
+export type CommunityDocumentDetail = {
   id: string;
-  courseId: string;
+  label: string;
+  url: string;
+};
+
+export type ClassroomItemDetail = {
+  id: string;
+  communityId: string;
   title: string;
   duration: string;
   order: number;
   content: string;
   contentType?: string;
+};
+
+export type CommunityDetail = CommunityCard & {
+  classroomItems: ClassroomItemDetail[];
+  documents: CommunityDocumentDetail[];
 };
 
 export type CommentDetail = {
@@ -44,9 +51,9 @@ export type CommentDetail = {
   createdAt: string;
 };
 
-export type AnnouncementDetail = {
+export type PostDetail = {
   id: string;
-  courseId: string;
+  communityId: string;
   title: string;
   authorName: string;
   authorInitials: string;
@@ -54,6 +61,26 @@ export type AnnouncementDetail = {
   createdAt: string;
   status?: string;
   comments: CommentDetail[];
+};
+
+export type CourseCard = CommunityCard & {
+  instructor: string;
+  lessonCount: number;
+};
+
+export type CourseDocumentDetail = CommunityDocumentDetail;
+
+export type LessonDetail = ClassroomItemDetail & {
+  courseId: string;
+};
+
+export type CourseDetail = CourseCard & {
+  lessons: LessonDetail[];
+  documents: CourseDocumentDetail[];
+};
+
+export type AnnouncementDetail = PostDetail & {
+  courseId: string;
 };
 
 function initialsFromName(name?: string | null, email?: string | null) {
@@ -92,36 +119,36 @@ function humanizeContentType(type?: string | null) {
 
 function durationLabelFromLessons(count: number) {
   if (count <= 0) {
-    return "No lessons yet";
+    return "No classroomItems yet";
   }
 
   return `${count} lesson${count > 1 ? "s" : ""}`;
 }
 
-async function hasDatabaseCourses() {
-  return (await db.course.count()) > 0;
+async function hasDatabaseCommunities() {
+  return (await db.community.count()) > 0;
 }
 
-export async function listCourseCards(): Promise<CourseCard[]> {
-  if (!(await hasDatabaseCourses())) {
+export async function listCommunityCards(): Promise<CommunityCard[]> {
+  if (!(await hasDatabaseCommunities())) {
     return COURSES.map((course) => ({
       id: course.id,
       title: course.title,
       description: course.description,
-      instructor: course.instructor,
+      ownerName: course.instructor,
       level: course.level,
       duration: course.duration,
       price: course.price,
       type: course.level,
       status: "PUBLISHED",
-      lessonCount: course.lessons.length,
+      classroomItemCount: course.lessons.length,
     }));
   }
 
-  const courses = await db.course.findMany({
+  const courses = await db.community.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      teacher: {
+      owner: {
         select: {
           name: true,
           email: true,
@@ -129,7 +156,7 @@ export async function listCourseCards(): Promise<CourseCard[]> {
       },
       _count: {
         select: {
-          lessons: true,
+          classroomItems: true,
         },
       },
     },
@@ -140,24 +167,24 @@ export async function listCourseCards(): Promise<CourseCard[]> {
     slug: course.slug,
     title: course.title,
     description: course.description,
-    instructor:
-      course.teacher.name ??
-      course.teacher.email?.split("@")[0] ??
+    ownerName:
+      course.owner.name ??
+      course.owner.email?.split("@")[0] ??
       "Campus Digital",
     level: humanizeCourseType(course.type),
-    duration: durationLabelFromLessons(course._count.lessons),
+    duration: durationLabelFromLessons(course._count.classroomItems),
     price: 0,
     type: course.type,
     status: course.status,
-    lessonCount: course._count.lessons,
+    classroomItemCount: course._count.classroomItems,
   }));
 }
 
-export async function getCourseDetailById(
-  courseId: string,
-): Promise<CourseDetail | null> {
-  if (!(await hasDatabaseCourses())) {
-    const course = getCourseById(courseId);
+export async function getCommunityDetailById(
+  communityId: string,
+): Promise<CommunityDetail | null> {
+  if (!(await hasDatabaseCommunities())) {
+    const course = getCourseById(communityId);
 
     if (!course) {
       return null;
@@ -167,16 +194,17 @@ export async function getCourseDetailById(
       id: course.id,
       title: course.title,
       description: course.description,
-      instructor: course.instructor,
+      ownerName: course.instructor,
       level: course.level,
       duration: course.duration,
       price: course.price,
       type: course.level,
       status: "PUBLISHED",
-      lessonCount: course.lessons.length,
-      lessons: course.lessons.map((lesson) => ({
+      classroomItemCount: course.lessons.length,
+      documents: [],
+      classroomItems: course.lessons.map((lesson) => ({
         id: lesson.id,
-        courseId: lesson.courseId,
+        communityId: lesson.courseId,
         title: lesson.title,
         duration: lesson.duration,
         order: lesson.order,
@@ -186,17 +214,20 @@ export async function getCourseDetailById(
     };
   }
 
-  const course = await db.course.findUnique({
-    where: { id: courseId },
+  const course = await db.community.findUnique({
+    where: { id: communityId },
     include: {
-      teacher: {
+      owner: {
         select: {
           name: true,
           email: true,
         },
       },
-      lessons: {
+      classroomItems: {
         orderBy: { position: "asc" },
+      },
+      documents: {
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -210,19 +241,24 @@ export async function getCourseDetailById(
     slug: course.slug,
     title: course.title,
     description: course.description,
-    instructor:
-      course.teacher.name ??
-      course.teacher.email?.split("@")[0] ??
+    ownerName:
+      course.owner.name ??
+      course.owner.email?.split("@")[0] ??
       "Campus Digital",
     level: humanizeCourseType(course.type),
-    duration: durationLabelFromLessons(course.lessons.length),
+    duration: durationLabelFromLessons(course.classroomItems.length),
     price: 0,
     type: course.type,
     status: course.status,
-    lessonCount: course.lessons.length,
-    lessons: course.lessons.map((lesson) => ({
+    classroomItemCount: course.classroomItems.length,
+    documents: course.documents.map((document) => ({
+      id: document.id,
+      label: document.label,
+      url: document.url,
+    })),
+    classroomItems: course.classroomItems.map((lesson) => ({
       id: lesson.id,
-      courseId: lesson.courseId,
+      communityId: lesson.communityId,
       title: lesson.title,
       duration: `${humanizeContentType(lesson.contentType)} ${lesson.position}`,
       order: lesson.position,
@@ -232,12 +268,12 @@ export async function getCourseDetailById(
   };
 }
 
-export async function getLessonDetailById(
-  courseId: string,
-  lessonId: string,
-): Promise<LessonDetail | null> {
-  if (!(await hasDatabaseCourses())) {
-    const lesson = getLessonById(courseId, lessonId);
+export async function getClassroomItemDetailById(
+  communityId: string,
+  itemId: string,
+): Promise<ClassroomItemDetail | null> {
+  if (!(await hasDatabaseCommunities())) {
+    const lesson = getLessonById(communityId, itemId);
 
     if (!lesson) {
       return null;
@@ -245,7 +281,7 @@ export async function getLessonDetailById(
 
     return {
       id: lesson.id,
-      courseId: lesson.courseId,
+      communityId: lesson.courseId,
       title: lesson.title,
       duration: lesson.duration,
       order: lesson.order,
@@ -254,10 +290,10 @@ export async function getLessonDetailById(
     };
   }
 
-  const lesson = await db.lesson.findFirst({
+  const lesson = await db.classroomItem.findFirst({
     where: {
-      id: lessonId,
-      courseId,
+      id: itemId,
+      communityId: communityId,
     },
   });
 
@@ -267,7 +303,7 @@ export async function getLessonDetailById(
 
   return {
     id: lesson.id,
-    courseId: lesson.courseId,
+    communityId: lesson.communityId,
     title: lesson.title,
     duration: `${humanizeContentType(lesson.contentType)} ${lesson.position}`,
     order: lesson.position,
@@ -276,11 +312,11 @@ export async function getLessonDetailById(
   };
 }
 
-export async function getLessonDetailByIdGlobal(
-  lessonId: string,
-): Promise<LessonDetail | null> {
-  if (!(await hasDatabaseCourses())) {
-    const lesson = getLessonByIdGlobal(lessonId);
+export async function getClassroomItemDetailByIdGlobal(
+  itemId: string,
+): Promise<ClassroomItemDetail | null> {
+  if (!(await hasDatabaseCommunities())) {
+    const lesson = getLessonByIdGlobal(itemId);
 
     if (!lesson) {
       return null;
@@ -288,7 +324,7 @@ export async function getLessonDetailByIdGlobal(
 
     return {
       id: lesson.id,
-      courseId: lesson.courseId,
+      communityId: lesson.courseId,
       title: lesson.title,
       duration: lesson.duration,
       order: lesson.order,
@@ -297,8 +333,8 @@ export async function getLessonDetailByIdGlobal(
     };
   }
 
-  const lesson = await db.lesson.findUnique({
-    where: { id: lessonId },
+  const lesson = await db.classroomItem.findUnique({
+    where: { id: itemId },
   });
 
   if (!lesson) {
@@ -307,7 +343,7 @@ export async function getLessonDetailByIdGlobal(
 
   return {
     id: lesson.id,
-    courseId: lesson.courseId,
+    communityId: lesson.communityId,
     title: lesson.title,
     duration: `${humanizeContentType(lesson.contentType)} ${lesson.position}`,
     order: lesson.position,
@@ -316,15 +352,20 @@ export async function getLessonDetailByIdGlobal(
   };
 }
 
-export async function listAnnouncementsByCourseId(
-  courseId: string,
-): Promise<AnnouncementDetail[]> {
-  if (!(await hasDatabaseCourses())) {
-    return ANNOUNCEMENTS.filter((announcement) => announcement.courseId === courseId);
+export async function listPostsByCommunityId(
+  communityId: string,
+): Promise<PostDetail[]> {
+  if (!(await hasDatabaseCommunities())) {
+    return ANNOUNCEMENTS.filter((announcement) => announcement.courseId === communityId).map(
+      (announcement) => ({
+        ...announcement,
+        communityId: announcement.courseId,
+      }),
+    );
   }
 
-  const announcements = await db.announcement.findMany({
-    where: { courseId },
+  const posts = await db.communityPost.findMany({
+    where: { communityId: communityId },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     include: {
       author: {
@@ -347,9 +388,9 @@ export async function listAnnouncementsByCourseId(
     },
   });
 
-  return announcements.map((announcement) => ({
+  return posts.map((announcement) => ({
     id: announcement.id,
-    courseId: announcement.courseId,
+    communityId: announcement.communityId,
     title: announcement.title,
     authorName:
       announcement.author.name ??
@@ -375,17 +416,104 @@ export async function listAnnouncementsByCourseId(
   }));
 }
 
-export async function getAnnouncementDetailById(
-  courseId: string,
-  announcementId: string,
-): Promise<AnnouncementDetail | null> {
-  if (!(await hasDatabaseCourses())) {
-    return getAnnouncementById(courseId, announcementId) ?? null;
+export async function getPostDetailById(
+  communityId: string,
+  postId: string,
+): Promise<PostDetail | null> {
+  if (!(await hasDatabaseCommunities())) {
+    const announcement = getAnnouncementById(communityId, postId);
+    return announcement ? { ...announcement, communityId: announcement.courseId } : null;
   }
 
-  const announcements = await listAnnouncementsByCourseId(courseId);
+  const posts = await listPostsByCommunityId(communityId);
   return (
-    announcements.find((announcement) => announcement.id === announcementId) ??
+    posts.find((announcement) => announcement.id === postId) ??
     null
   );
+}
+
+export async function listCourseCards(): Promise<CourseCard[]> {
+  const communities = await listCommunityCards();
+  return communities.map((community) => ({
+    ...community,
+    instructor: community.ownerName,
+    lessonCount: community.classroomItemCount,
+  }));
+}
+
+export async function getCourseDetailById(
+  communityId: string,
+): Promise<CourseDetail | null> {
+  const community = await getCommunityDetailById(communityId);
+
+  if (!community) {
+    return null;
+  }
+
+  return {
+    ...community,
+    instructor: community.ownerName,
+    lessonCount: community.classroomItems.length,
+    lessons: community.classroomItems.map((item) => ({
+      ...item,
+      courseId: item.communityId,
+    })),
+  };
+}
+
+export async function getLessonDetailById(
+  communityId: string,
+  classroomItemId: string,
+): Promise<LessonDetail | null> {
+  const item = await getClassroomItemDetailById(communityId, classroomItemId);
+
+  if (!item) {
+    return null;
+  }
+
+  return {
+    ...item,
+    courseId: item.communityId,
+  };
+}
+
+export async function getLessonDetailByIdGlobal(
+  classroomItemId: string,
+): Promise<LessonDetail | null> {
+  const item = await getClassroomItemDetailByIdGlobal(classroomItemId);
+
+  if (!item) {
+    return null;
+  }
+
+  return {
+    ...item,
+    courseId: item.communityId,
+  };
+}
+
+export async function listAnnouncementsByCourseId(
+  communityId: string,
+): Promise<AnnouncementDetail[]> {
+  const posts = await listPostsByCommunityId(communityId);
+  return posts.map((post) => ({
+    ...post,
+    courseId: post.communityId,
+  }));
+}
+
+export async function getAnnouncementDetailById(
+  communityId: string,
+  announcementId: string,
+): Promise<AnnouncementDetail | null> {
+  const post = await getPostDetailById(communityId, announcementId);
+
+  if (!post) {
+    return null;
+  }
+
+  return {
+    ...post,
+    courseId: post.communityId,
+  };
 }

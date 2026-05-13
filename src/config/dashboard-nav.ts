@@ -3,7 +3,7 @@ export type DashboardRoute = {
   label: string;
   summary: string;
   owner: "P1" | "P2" | "P3";
-  visibility: "all" | "signedIn" | "teacher" | "admin";
+  visibility: "all" | "signedIn" | "owner" | "admin";
 };
 
 export const dashboardRoutes: DashboardRoute[] = [
@@ -15,32 +15,32 @@ export const dashboardRoutes: DashboardRoute[] = [
     visibility: "all",
   },
   {
-    href: "/dashboard/courses",
-    label: "Classroom",
-    summary: "Lessons, folders, and read-side learning flow.",
+    href: "/dashboard/communities",
+    label: "Communities",
+    summary: "Browse joined communities, classroom resources, and protected member spaces.",
     owner: "P1",
     visibility: "all",
   },
   {
     href: "/dashboard/community",
     label: "Community",
-    summary: "Shared route shell for feed, post creation, and later comments.",
+    summary: "Shared feed surface for posts, discussion, and community activity.",
     owner: "P1",
     visibility: "all",
   },
   {
     href: "/dashboard/checkout",
-    label: "Join",
-    summary: "Membership and enrollment action surface.",
+    label: "Access",
+    summary: "Community join and access-management surface.",
     owner: "P1",
     visibility: "all",
   },
   {
     href: "/dashboard/teach",
-    label: "Teach",
-    summary: "Teacher workspace for courses, lessons, and announcements.",
+    label: "Owned Communities",
+    summary: "Owner workspace for communities, classroom items, and member access.",
     owner: "P1",
-    visibility: "teacher",
+    visibility: "owner",
   },
   {
     href: "/dashboard/invitations",
@@ -52,7 +52,7 @@ export const dashboardRoutes: DashboardRoute[] = [
   {
     href: "/dashboard/progress",
     label: "Progress",
-    summary: "Learner progress, evaluations, and teacher visibility.",
+    summary: "Member progress, owner visibility, and classroom completion tracking.",
     owner: "P1",
     visibility: "signedIn",
   },
@@ -66,29 +66,22 @@ export const dashboardRoutes: DashboardRoute[] = [
   {
     href: "/dashboard/admin",
     label: "Admin Panel",
-    summary: "Role-protected integration surface for course management.",
+    summary: "Role-protected platform governance surface for users and communities.",
     owner: "P3",
     visibility: "admin",
-  },
-  {
-    href: "/dashboard/deploy",
-    label: "Deploy + Git",
-    summary: "Review rules, merge gate, and deployment checklist.",
-    owner: "P3",
-    visibility: "all",
   },
 ];
 
 export function getDashboardRoutes(role: string, signedIn = false) {
   const isAdmin = role === "ADMIN";
-  const isTeacher = role === "TEACHER" || role === "ADMIN";
+  const isOwner = role === "OWNER" || role === "ADMIN";
 
   return dashboardRoutes.filter((route) => {
     if (route.visibility === "signedIn" && !signedIn) {
       return false;
     }
 
-    if (route.visibility === "teacher" && !isTeacher) {
+    if (route.visibility === "owner" && !isOwner) {
       return false;
     }
 

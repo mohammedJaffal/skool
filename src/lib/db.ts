@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import { normalizeDatabaseUrl } from "@/lib/normalize-db-connection";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -12,7 +13,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required to initialize Prisma.");
 }
 
-const adapter = new PrismaPg(new Pool({ connectionString }));
+const adapter = new PrismaPg(
+  new Pool({ connectionString: normalizeDatabaseUrl(connectionString) }),
+);
 
 export const db =
   globalForPrisma.prisma ??

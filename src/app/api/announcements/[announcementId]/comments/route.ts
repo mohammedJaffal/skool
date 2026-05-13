@@ -10,7 +10,7 @@ type Params = { params: Promise<{ announcementId: string }> };
 
 export async function GET(_request: Request, { params }: Params) {
   const { announcementId } = await params;
-  const announcement = await db.announcement.findUnique({
+  const announcement = await db.communityPost.findUnique({
     where: { id: announcementId },
     include: {
       comments: {
@@ -52,11 +52,11 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const { announcementId } = await params;
-  const announcement = await db.announcement.findUnique({
+  const announcement = await db.communityPost.findUnique({
     where: { id: announcementId },
     select: {
       id: true,
-      courseId: true,
+      communityId: true,
     },
   });
 
@@ -64,7 +64,7 @@ export async function POST(request: Request, { params }: Params) {
     return jsonError("Announcement not found.", 404);
   }
 
-  if (!(await hasActiveCourseAccess(announcement.courseId, user))) {
+  if (!(await hasActiveCourseAccess(announcement.communityId, user))) {
     return jsonError("You do not have access to this course thread.", 403);
   }
 
@@ -79,7 +79,7 @@ export async function POST(request: Request, { params }: Params) {
 
   const comment = await db.comment.create({
     data: {
-      announcementId,
+      postId: announcementId,
       authorId: user.id,
       content,
     },
@@ -87,4 +87,3 @@ export async function POST(request: Request, { params }: Params) {
 
   return NextResponse.json({ comment }, { status: 201 });
 }
-

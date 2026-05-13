@@ -5,42 +5,42 @@ import { useMemo, useState } from "react";
 type Invitation = {
   id: string;
   status: string;
-  course: { id: string; title: string };
-  teacher: { name: string | null; email: string | null };
+  community: { id: string; title: string };
+  owner: { name: string | null; email: string | null };
 };
 
 type JoinRequest = {
   id: string;
-  courseId: string;
+  communityId: string;
   status: string;
 };
 
-type CourseCard = {
+type CommunityCard = {
   id: string;
   title: string;
   description: string;
-  lessonCount: number;
+  classroomItemCount: number;
 };
 
 type InvitationsWorkspaceProps = {
   invitations: Invitation[];
-  joinRequests: JoinRequest[];
-  courses: CourseCard[];
-  activeCourseIds: string[];
+  communityJoinRequests: JoinRequest[];
+  communities: CommunityCard[];
+  activeCommunityIds: string[];
 };
 
 export function InvitationsWorkspace({
   invitations: initialInvitations,
-  joinRequests: initialRequests,
-  courses,
-  activeCourseIds,
+  communityJoinRequests: initialRequests,
+  communities,
+  activeCommunityIds,
 }: InvitationsWorkspaceProps) {
   const [invitations, setInvitations] = useState(initialInvitations);
   const [joinRequests, setJoinRequests] = useState(initialRequests);
   const [status, setStatus] = useState("");
 
   const requestMap = useMemo(
-    () => new Map(joinRequests.map((request) => [request.courseId, request])),
+    () => new Map(joinRequests.map((request) => [request.communityId, request])),
     [joinRequests],
   );
 
@@ -69,8 +69,8 @@ export function InvitationsWorkspace({
     setStatus(`Invitation ${nextStatus.toLowerCase()}.`);
   }
 
-  async function createJoinRequest(courseId: string) {
-    const response = await fetch(`/api/courses/${courseId}/join-requests`, {
+  async function createJoinRequest(communityId: string) {
+    const response = await fetch(`/api/communities/${communityId}/join-requests`, {
       method: "POST",
     });
     const payload = (await response.json().catch(() => null)) as
@@ -84,7 +84,7 @@ export function InvitationsWorkspace({
 
     setJoinRequests((current) => [
       payload.request as JoinRequest,
-      ...current.filter((request) => request.courseId !== courseId),
+      ...current.filter((request) => request.communityId !== communityId),
     ]);
     setStatus("Join request submitted.");
   }
@@ -102,7 +102,7 @@ export function InvitationsWorkspace({
           <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
             Invitation inbox
           </p>
-          <h1 className="mt-1 text-2xl font-bold">Course invitations</h1>
+          <h1 className="mt-1 text-2xl font-bold">Community invitations</h1>
           <div className="mt-4 space-y-3">
             {invitations.length > 0 ? (
               invitations.map((invitation) => (
@@ -112,12 +112,12 @@ export function InvitationsWorkspace({
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold">{invitation.course.title}</p>
+                      <p className="font-semibold">{invitation.community.title}</p>
                       <p className="text-sm text-[color:var(--muted)]">
                         From{" "}
-                        {invitation.teacher.name ??
-                          invitation.teacher.email?.split("@")[0] ??
-                          "Teacher"}
+                        {invitation.owner.name ??
+                          invitation.owner.email?.split("@")[0] ??
+                          "Owner"}
                       </p>
                     </div>
                     <span className="rounded-full border border-[color:var(--line)] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--muted)]">
@@ -160,24 +160,24 @@ export function InvitationsWorkspace({
           <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
             Access requests
           </p>
-          <h2 className="mt-1 text-2xl font-bold">Discover courses</h2>
+          <h2 className="mt-1 text-2xl font-bold">Discover communities</h2>
           <div className="mt-4 space-y-3">
-            {courses.map((course) => {
-              const request = requestMap.get(course.id);
-              const hasAccess = activeCourseIds.includes(course.id);
+            {communities.map((community) => {
+              const request = requestMap.get(community.id);
+              const hasAccess = activeCommunityIds.includes(community.id);
 
               return (
                 <article
-                  key={course.id}
+                  key={community.id}
                   className="rounded-[18px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-4"
                 >
                   <div className="space-y-1">
-                    <p className="font-semibold">{course.title}</p>
+                    <p className="font-semibold">{community.title}</p>
                     <p className="text-sm text-[color:var(--muted)]">
-                      {course.description}
+                      {community.description}
                     </p>
                     <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">
-                      {course.lessonCount} lessons
+                      {community.classroomItemCount} classroom items
                     </p>
                   </div>
 
@@ -193,7 +193,7 @@ export function InvitationsWorkspace({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => createJoinRequest(course.id)}
+                        onClick={() => createJoinRequest(community.id)}
                         className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                       >
                         Request access

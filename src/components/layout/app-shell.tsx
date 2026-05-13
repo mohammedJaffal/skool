@@ -9,7 +9,7 @@ type AppShellProps = {
 };
 
 export function AppShell({ children, userName, role }: AppShellProps) {
-  const links = getDashboardRoutes(role ?? "LEARNER", Boolean(userName));
+  const links = getDashboardRoutes(role ?? "MEMBER", Boolean(userName));
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-4 md:px-6">

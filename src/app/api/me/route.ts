@@ -12,8 +12,7 @@ export async function GET() {
   const record = await db.user.findUnique({
     where: { id: user.id },
     include: {
-      teacherProfile: true,
-      learnerProfile: true,
+      userProfile: true,
     },
   });
 
@@ -34,6 +33,7 @@ export async function PATCH(request: Request) {
   const body = (await request.json().catch(() => null)) as
     | {
         name?: string;
+        birthDate?: string;
         bio?: string;
         specialty?: string;
         track?: string;
@@ -44,40 +44,36 @@ export async function PATCH(request: Request) {
     where: { id: user.id },
     data: {
       name: body?.name?.trim() || undefined,
-      teacherProfile:
-        user.role === "TEACHER"
-          ? {
-              upsert: {
-                create: {
-                  specialty: body?.specialty?.trim() || "General teaching",
-                  bio: body?.bio?.trim() || null,
-                },
-                update: {
-                  specialty: body?.specialty?.trim() || undefined,
-                  bio: body?.bio?.trim() || undefined,
-                },
-              },
-            }
+      birthDate: body?.birthDate?.trim()
+        ? new Date(body.birthDate)
+        : body?.birthDate === ""
+          ? null
           : undefined,
-      learnerProfile:
-        user.role === "LEARNER"
-          ? {
-              upsert: {
-                create: {
-                  track: body?.track?.trim() || "General learner path",
-                  bio: body?.bio?.trim() || null,
-                },
-                update: {
-                  track: body?.track?.trim() || undefined,
-                  bio: body?.bio?.trim() || undefined,
-                },
-              },
-            }
-          : undefined,
+      userProfile: {
+        upsert: {
+          create: {
+            specialty:
+              user.role === "OWNER"
+                ? body?.specialty?.trim() || "General community leadership"
+                : null,
+            track:
+              user.role === "MEMBER"
+                ? body?.track?.trim() || "General member path"
+                : null,
+            bio: body?.bio?.trim() || null,
+          },
+          update: {
+            specialty:
+              user.role === "OWNER" ? body?.specialty?.trim() || null : undefined,
+            track:
+              user.role === "MEMBER" ? body?.track?.trim() || null : undefined,
+            bio: body?.bio?.trim() || null,
+          },
+        },
+      },
     },
     include: {
-      teacherProfile: true,
-      learnerProfile: true,
+      userProfile: true,
     },
   });
 
@@ -97,4 +93,3 @@ export async function DELETE() {
 
   return NextResponse.json({ success: true });
 }
-

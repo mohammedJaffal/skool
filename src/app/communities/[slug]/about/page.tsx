@@ -24,16 +24,11 @@ export default async function CommunityAboutPage({
     notFound();
   }
 
-  const member = await isCommunityMember(community.slug, session?.user);
   const classroom = await getCommunityClassroomPreview(community.slug);
-  const actionHref = member
-    ? `/communities/${community.slug}/feed`
-    : session?.user
-      ? `/dashboard/checkout?community=${community.slug}`
-      : `/auth/signin?callbackUrl=/communities/${community.slug}`;
+  const member = await isCommunityMember(community.slug, session?.user);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_272px]">
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_272px]">
       <section className="rounded-[8px] border border-[color:var(--line)] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
         <h1 className="text-2xl font-semibold">{community.name}</h1>
         <CommunityCover community={community} className="mt-6 min-h-[396px]" />
@@ -66,10 +61,10 @@ export default async function CommunityAboutPage({
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-xl font-semibold">Classroom preview</h2>
                 <Link
-                  href={member ? "/dashboard/courses" : actionHref}
+                  href={`/communities/${community.slug}/classroom`}
                   className="text-sm font-semibold text-[#3468ff]"
                 >
-                  {member ? "Open classroom" : "Join to access"}
+                  Open classroom
                 </Link>
               </div>
               <div className="mt-3 grid gap-3">
@@ -92,9 +87,9 @@ export default async function CommunityAboutPage({
 
       <CommunitySideCard
         community={community}
-        member={member}
-        actionHref={actionHref}
+        communityId={classroom?.id ?? null}
         signedIn={Boolean(session?.user)}
+        isMember={member}
       />
     </div>
   );

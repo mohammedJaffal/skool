@@ -9,17 +9,17 @@ export async function GET() {
     return jsonError("You must be signed in.", 401);
   }
 
-  const invitations = await db.courseInvitation.findMany({
-    where: { learnerId: user.id },
+  const invitations = await db.communityInvitation.findMany({
+    where: { memberId: user.id },
     orderBy: { sentAt: "desc" },
     include: {
-      course: {
+      community: {
         select: {
           id: true,
           title: true,
         },
       },
-      teacher: {
+      owner: {
         select: {
           name: true,
           email: true,

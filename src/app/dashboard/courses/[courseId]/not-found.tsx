@@ -8,13 +8,13 @@ export default function CourseNotFound() {
       </p>
       <h1 className="mt-2 text-2xl font-bold">Course not found</h1>
       <p className="mt-2 text-sm text-[color:var(--muted)]">
-        The requested classroom folder does not exist or is no longer available.
+        The requested community space does not exist or is no longer available.
       </p>
       <Link
-        href="/dashboard/courses"
+        href="/dashboard/communities"
         className="mt-4 inline-block rounded-full border border-[color:var(--line)] bg-white px-4 py-2 text-sm font-semibold"
       >
-        Back to classroom
+        Back to communities
       </Link>
     </section>
   );

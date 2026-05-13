@@ -4,7 +4,7 @@ import { getDashboardRoutes } from "@/config/dashboard-nav";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const role = session?.user?.role ?? "LEARNER";
+  const role = session?.user?.role ?? "MEMBER";
   const items = getDashboardRoutes(role, Boolean(session?.user));
 
   return (

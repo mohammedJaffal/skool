@@ -6,11 +6,11 @@ Status: Planned - not active yet
 
 Roadmap anchor:
 - Sprint 04
-- Course communication becomes fully usable and course participation is stable
+- Community feed participation and member-space flow
 
 Conception impact:
-- Modules: Course Communication, Invitations And Join Requests, Course Catalog And Course Workspace, Dashboard Shell, Review / Integration / Deployment
-- Entities/APIs: `Announcement`, `Comment`, membership-aware communication rules, request/invitation completion routes, membership update/removal flows
+- Modules: Community Feed, Members, Owner Workspace, Dashboard Shell, Review / Integration / Deployment
+- Entities/APIs: `CommunityPost`, `PostComment`, member-space routes, `GET /api/communities/[communityId]/posts`, `POST /api/communities/[communityId]/posts`, `POST /api/posts/[postId]/comments`
 
 Workload target:
 - P1 about `125`
@@ -24,101 +24,74 @@ Status rules:
 
 ## P1 - Frontend - Sadik
 
-### 1. Announcement Publishing UI
-- [x] Teacher announcement create UI
-- [ ] Teacher announcement edit/read flow UI where needed
-- [ ] Clear published vs draft presentation in teacher screens
-- Done means: a teacher can manage course announcements from the UI without leaving the course context.
+### 1. Community Feed UI
+- [ ] Feed list screen for a community
+- [ ] Post detail/read states
+- [ ] Pinned owner post or announcement rendering
+- Done means: members can open the community tab and read a coherent feed.
 
-### 2. Course Discussion Refinement
-- [ ] Comment interaction polish
-- [x] Clear announcement-thread reading flow
-- [x] Success/error/empty states for discussion pages
-- Done means: course communication is understandable and stable for repeated use.
+### 2. Post And Comment Interaction UI
+- [ ] Create post form UI
+- [ ] Comment create form UI
+- [ ] Success/error states for feed participation
+- Done means: feed interaction is no longer read-only on the frontend.
 
-### 3. Teacher Communication Screens
-- [x] Teacher-facing communication overview inside course workspace
-- [ ] Links from course manager to communication screens
-- [x] Basic learner/teacher context differences in UI
-- Done means: communication is fully attached to course management, not isolated.
+### 3. Members Space UI
+- [ ] Members list screen
+- [ ] Basic member-card rendering
+- [ ] Stable empty/loading/error states for member-space reads
+- Done means: the community has a visible member space, not only classroom content.
 
-### 4. UX Cleanup On Access And Participation Flows
-- [ ] Cleaner transitions between membership state and communication state
-- [ ] Guard against confusing UI after invitation/request decisions
-- [ ] Mobile polish on communication screens
-- Done means: the participation flow from access to communication feels coherent.
-
-Validation:
-- Branch: `sadik`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Partially complete (announcement publishing and discussion flow are in; final polish is still open)`
-- Merge status: `Implemented in main`
+### 4. Participation UX Pass
+- [ ] Keep feed and members tabs visually coherent
+- [ ] Membership-aware participation messaging
+- [ ] Mobile polish on participation screens
+- Done means: the participation flow from access to feed feels coherent.
 
 ## P2 - Backend - Sabri
 
-### 1. Announcement Write Endpoints
-- [x] Create announcement endpoint
-- [ ] Update announcement endpoint if needed for MVP teacher flow
-- [x] Teacher/admin authorization enforcement
-- Done means: teachers can publish course communication through stable backend routes.
+### 1. Feed Endpoints
+- [ ] `GET /api/communities/[communityId]/posts`
+- [ ] `POST /api/communities/[communityId]/posts`
+- [ ] Stable member-only posting checks
+- Done means: members and owners can publish into a real community feed through stable routes.
 
-### 2. Membership Removal And Update Flows
-- [x] Remove learner from course endpoint
-- [x] Membership status update flow where needed
-- [x] Stable membership response shapes for teacher member screens
-- Done means: course participation can be managed after initial access is granted.
+### 2. Comment Endpoints
+- [ ] `POST /api/posts/[postId]/comments`
+- [ ] Stable payloads for post comments
+- [ ] Membership-aware comment authorization
+- Done means: feed discussion works through one coherent backend contract.
 
-### 3. Request And Invitation Completion
-- [x] Finish any missing accept/reject/cancel flow pieces
-- [x] Clean up status transitions for invitation/request models
-- [x] Ensure payload shapes support final integrated UI
-- Done means: access-control flows no longer have partial states blocking communication usage.
-
-### 4. Communication And Participation Contracts
-- [x] Confirm announcement/comment payloads for integrated pages
-- [x] Confirm member-status payloads for teacher communication screens
-- [x] Keep API naming aligned with the conception
-- Done means: P1 and P3 can integrate stable communication and participation flows.
-
-Validation:
-- Branch: `sabri`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Mostly complete (communication and participation routes are live; announcement edit is still open)`
-- Merge status: `Implemented in main`
+### 3. Members Read Contracts
+- [ ] Community member list payloads
+- [ ] Stable basic member profile fields for member-space rendering
+- [ ] Keep API naming aligned with the conception
+- Done means: the member-space UI can render stable member lists without guessing contracts.
 
 ## P3 - Integration - Jaffal
 
-### 1. Communication Integration Hardening
-- [x] Validate membership-aware access for communication routes
-- [x] Keep teacher and learner communication entry points coherent
-- [ ] Check for regressions against lesson and membership flows
-- Done means: communication routes behave correctly inside the protected product shell.
+### 1. Feed Integration Hardening
+- [ ] Validate membership-aware access for feed routes
+- [ ] Keep owner and member participation entry points coherent
+- [ ] Check for regressions against access-control flows
+- Done means: feed routes behave correctly inside the protected community shell.
 
 ### 2. Validation And Error Handling Pass
-- [x] Review accepted access-control and communication flows together
-- [x] Standardize obvious route-level error handling gaps
-- [x] Catch role/ownership regressions before merge
-- Done means: Sprint 04 is stable enough for repeated demo testing on communication paths.
+- [ ] Review accepted participation flows together
+- [ ] Standardize obvious route-level error handling gaps
+- [ ] Catch role and membership regressions before merge
+- Done means: Sprint 04 is stable enough for repeated demo testing on community participation paths.
 
-### 3. Acceptance Gate Across Teacher And Learner Flows
-- [x] Integrate accepted P1 and P2 work into one usable communication slice
-- [x] Validate teacher publish flow and learner participation flow together
-- [ ] Confirm the sprint milestone is ready before progress/evaluation work begins
-- Done means: course communication is a reliable integrated product flow.
-
-Validation:
-- Branch: `jaffal`
-- Reviewer: `jaffal`
-- Review date: `2026-05-10`
-- Result: `Mostly complete (the integrated communication slice is usable; final regression cleanup is still open)`
-- Merge status: `Implemented in main`
+### 3. Acceptance Gate Across Feed And Member Space
+- [ ] Integrate accepted P1 and P2 work into one usable participation slice
+- [ ] Validate owner publish flow and member participation flow together
+- [ ] Confirm the sprint milestone is ready before owner oversight/admin work begins
+- Done means: the product now feels like a community, not only a gated classroom.
 
 ## Dependency Gate For Sprint 05
 
 Do not start Sprint 05 until:
-- announcements and comments work end-to-end
-- course communication is membership-aware
-- teacher participation management is usable
-- route-level validation and integration issues are no longer blocking normal use
+- community feed works
+- comments work
+- member-space reads are stable
+- membership-aware participation works end to end
