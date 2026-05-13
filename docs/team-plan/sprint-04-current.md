@@ -27,7 +27,7 @@ Status rules:
 ### 1. Community Feed UI
 - [ ] Feed list screen for a community
 - [ ] Post detail/read states
-- [ ] Pinned owner post or announcement rendering
+- [ ] Pinned owner post rendering
 - Done means: members can open the community tab and read a coherent feed.
 
 ### 2. Post And Comment Interaction UI

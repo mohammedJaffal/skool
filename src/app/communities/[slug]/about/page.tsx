@@ -6,7 +6,7 @@ import {
   CommunitySideCard,
 } from "@/components/community/community-branding";
 import {
-  getCommunityBySlugOrCourse,
+  getCommunityBySlug,
   getCommunityClassroomPreview,
   isCommunityMember,
 } from "@/lib/community-data";
@@ -18,7 +18,7 @@ export default async function CommunityAboutPage({
 }) {
   const { slug } = await params;
   const session = await auth();
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();
@@ -68,14 +68,14 @@ export default async function CommunityAboutPage({
                 </Link>
               </div>
               <div className="mt-3 grid gap-3">
-                {classroom.lessons.slice(0, 4).map((lesson) => (
+                {classroom.classroomItems.slice(0, 4).map((item) => (
                   <div
-                    key={lesson.id}
+                    key={item.id}
                     className="flex items-center justify-between rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-3"
                   >
-                    <p className="font-medium">{lesson.title}</p>
+                    <p className="font-medium">{item.title}</p>
                     <p className="text-sm text-[color:var(--muted)]">
-                      {lesson.duration}
+                      {item.duration}
                     </p>
                   </div>
                 ))}

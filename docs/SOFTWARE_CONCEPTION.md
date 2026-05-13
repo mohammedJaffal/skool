@@ -135,7 +135,7 @@ Can:
 - create and edit communities they own
 - manage classroom items and classroom resources
 - upload or link documents and video resources
-- publish community posts or announcements
+- publish community posts
 - invite members
 - remove members
 - inspect member classroom progress
@@ -245,7 +245,7 @@ Current fields:
 - `updatedAt`
 
 Notes:
-- despite older naming, this is the current replacement for `Lesson`
+- this is the current classroom-item model used by the MVP
 - `contentType` is already broad enough to support text, video, and linked resources
 
 #### CommunityDocument

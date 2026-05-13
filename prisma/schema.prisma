@@ -16,8 +16,6 @@ enum CommunityStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
-
-  @@map("CourseStatus")
 }
 
 enum MembershipStatus {
@@ -46,8 +44,6 @@ enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
-
-  @@map("AnnouncementStatus")
 }
 
 model User {
@@ -64,12 +60,12 @@ model User {
   accounts         Account[]
   sessions         Session[]
   userProfile      UserProfile?
-  ownedCommunities Community[]            @relation("CourseTeacher")
-  communityMemberships CommunityMembership[] @relation("MembershipLearner")
-  sentInvitations  CommunityInvitation[]  @relation("InvitationTeacher")
-  receivedInvitations CommunityInvitation[] @relation("InvitationLearner")
-  communityJoinRequests CommunityJoinRequest[] @relation("JoinRequestLearner")
-  reviewedJoinRequests CommunityJoinRequest[] @relation("JoinRequestReviewer")
+  ownedCommunities Community[]            @relation("CommunityOwner")
+  communityMemberships CommunityMembership[] @relation("CommunityMember")
+  sentInvitations  CommunityInvitation[]  @relation("CommunityInvitationOwner")
+  receivedInvitations CommunityInvitation[] @relation("CommunityInvitationMember")
+  communityJoinRequests CommunityJoinRequest[] @relation("CommunityJoinRequestMember")
+  reviewedJoinRequests CommunityJoinRequest[] @relation("CommunityJoinRequestReviewer")
   posts            CommunityPost[]
   comments         Comment[]
   evaluations      CommunityEvaluation[]
@@ -87,8 +83,6 @@ model UserProfile {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@map("UserProfile")
 }
 
 model Community {
@@ -98,8 +92,8 @@ model Community {
   description   String             @db.Text
   type          String
   status        CommunityStatus    @default(DRAFT)
-  ownerId       String             @map("teacherId")
-  owner         User               @relation("CourseTeacher", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId       String
+  owner         User               @relation("CommunityOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   classroomItems ClassroomItem[]
   documents     CommunityDocument[]
   memberships   CommunityMembership[]
@@ -112,12 +106,11 @@ model Community {
 
   @@index([ownerId])
   @@index([status])
-  @@map("Course")
 }
 
 model ClassroomItem {
   id            String           @id @default(cuid())
-  communityId   String           @map("courseId")
+  communityId   String
   community     Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
   title         String
   content       String           @db.Text
@@ -129,66 +122,62 @@ model ClassroomItem {
 
   @@unique([communityId, position])
   @@index([communityId])
-  @@map("Lesson")
 }
 
 model CommunityMembership {
   id        String           @id @default(cuid())
-  communityId  String        @map("courseId")
-  memberId String            @map("learnerId")
+  communityId  String
+  memberId String
   status    MembershipStatus @default(PENDING)
   joinedAt  DateTime         @default(now())
   endedAt   DateTime?
   community Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  member    User             @relation("MembershipLearner", fields: [memberId], references: [id], onDelete: Cascade)
+  member    User             @relation("CommunityMember", fields: [memberId], references: [id], onDelete: Cascade)
 
   @@unique([communityId, memberId])
   @@index([memberId])
   @@index([status])
-  @@map("CourseMembership")
 }
 
 model CommunityInvitation {
   id          String           @id @default(cuid())
-  communityId String           @map("courseId")
-  ownerId     String           @map("teacherId")
-  memberId    String           @map("learnerId")
+  communityId String
+  ownerId     String
+  memberId    String
   status      InvitationStatus @default(PENDING)
   sentAt      DateTime         @default(now())
   respondedAt DateTime?
   community   Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  owner       User             @relation("InvitationTeacher", fields: [ownerId], references: [id], onDelete: Cascade)
-  member      User             @relation("InvitationLearner", fields: [memberId], references: [id], onDelete: Cascade)
+  owner       User             @relation("CommunityInvitationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  member      User             @relation("CommunityInvitationMember", fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([communityId])
   @@index([ownerId])
   @@index([memberId])
   @@index([status])
-  @@map("CourseInvitation")
 }
 
 model CommunityJoinRequest {
   id           String            @id @default(cuid())
-  communityId  String            @map("courseId")
-  memberId     String            @map("learnerId")
+  communityId  String
+  memberId     String
   status       JoinRequestStatus @default(PENDING)
   createdAt    DateTime          @default(now())
   reviewedAt   DateTime?
   reviewedById String?
   community    Community         @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  member       User              @relation("JoinRequestLearner", fields: [memberId], references: [id], onDelete: Cascade)
-  reviewedBy   User?             @relation("JoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  member       User              @relation("CommunityJoinRequestMember", fields: [memberId], references: [id], onDelete: Cascade)
+  reviewedBy   User?             @relation("CommunityJoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   @@index([communityId])
   @@index([memberId])
   @@index([status])
   @@index([reviewedById])
-  @@map("CourseJoinRequest")
 }
 
 model CommunityPost {
   id          String             @id @default(cuid())
-  communityId String             @map("courseId")
+  communityId String
   authorId    String
   title       String
   content     String             @db.Text
@@ -203,12 +192,11 @@ model CommunityPost {
   @@index([communityId])
   @@index([authorId])
   @@index([status])
-  @@map("Announcement")
 }
 
 model Comment {
   id             String       @id @default(cuid())
-  postId         String       @map("announcementId")
+  postId         String
   authorId       String
   content        String       @db.Text
   post           CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -222,8 +210,8 @@ model Comment {
 
 model CommunityEvaluation {
   id        String   @id @default(cuid())
-  communityId  String @map("courseId")
-  memberId String     @map("learnerId")
+  communityId  String
+  memberId String
   rating    Int
   feedback  String?  @db.Text
   community Community   @relation(fields: [communityId], references: [id], onDelete: Cascade)
@@ -233,13 +221,12 @@ model CommunityEvaluation {
 
   @@unique([communityId, memberId])
   @@index([memberId])
-  @@map("CourseEvaluation")
 }
 
 model ClassroomItemProgress {
   id           String   @id @default(cuid())
-  classroomItemId String @map("lessonId")
-  memberId    String     @map("learnerId")
+  classroomItemId String
+  memberId    String
   completed    Boolean  @default(false)
   completedAt  DateTime?
   lastViewedAt DateTime?
@@ -250,12 +237,11 @@ model ClassroomItemProgress {
 
   @@unique([classroomItemId, memberId])
   @@index([memberId])
-  @@map("LessonProgress")
 }
 
 model CommunityDocument {
   id        String   @id @default(cuid())
-  communityId  String @map("courseId")
+  communityId  String
   label     String
   url       String
   createdAt DateTime @default(now())
@@ -263,7 +249,6 @@ model CommunityDocument {
   community Community   @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   @@index([communityId])
-  @@map("CourseDocument")
 }
 
 model Account {

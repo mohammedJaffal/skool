@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { AnnouncementCommentComposer } from "@/components/community/announcement-comment-composer";
+import { PostCommentComposer } from "@/components/community/post-comment-composer";
 import { getCommunityDetailById, getPostDetailById } from "@/lib/platform-data";
 
 type PostPageProps = {
@@ -120,8 +120,8 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
         )}
 
-        <AnnouncementCommentComposer
-          announcementId={post.id}
+        <PostCommentComposer
+          postId={post.id}
           signedIn={Boolean(session?.user)}
         />
       </section>

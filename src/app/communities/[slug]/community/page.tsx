@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { CommunitySideCard } from "@/components/community/community-branding";
 import { CommunityLiveFeed } from "@/components/community/community-live-feed";
 import {
-  getCommunityBySlugOrCourse,
+  getCommunityBySlug,
   getCommunityClassroomPreview,
   isCommunityMember,
 } from "@/lib/community-data";
@@ -15,7 +15,7 @@ export default async function CommunityPage({
 }) {
   const { slug } = await params;
   const session = await auth();
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();

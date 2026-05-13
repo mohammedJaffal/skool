@@ -75,7 +75,7 @@ Main goals:
 - edit community details
 - create and manage classroom items
 - attach document and video resources
-- publish posts or announcements
+- publish posts
 - invite members
 - remove members
 - consult member progress
@@ -126,7 +126,7 @@ Main goals:
 | --- | --- | --- |
 | Create community | Active | Owner workspace |
 | Edit community details | Active | Owner workspace |
-| Publish post or announcement | Active | Owner posts |
+| Publish post | Active | Owner posts |
 | Create classroom item | Active | Owner workspace |
 | Attach document resource | Active | Classroom/community resource support |
 | Attach video resource | Active | Video content type support |
@@ -196,7 +196,7 @@ Use cases:
 Use cases:
 - Create community
 - Edit community details
-- Publish post or announcement
+- Publish post
 - Create classroom item
 - Attach document
 - Attach video
@@ -305,7 +305,7 @@ rectangle "Community Owner Workspace" {
   usecase "Sign in" as UC1
   usecase "Create community" as UC2
   usecase "Edit community details" as UC3
-  usecase "Publish post / announcement" as UC4
+  usecase "Publish post" as UC4
   usecase "Create classroom item" as UC5
   usecase "Attach document" as UC6
   usecase "Attach video" as UC7

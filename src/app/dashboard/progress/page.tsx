@@ -9,7 +9,7 @@ export default async function ProgressPage() {
     return null;
   }
 
-  const learnerMemberships = await db.communityMembership.findMany({
+  const memberMemberships = await db.communityMembership.findMany({
     where: {
       memberId: session.user.id,
       status: "ACTIVE",
@@ -30,8 +30,8 @@ export default async function ProgressPage() {
     },
   });
 
-  const learnerCourses = await Promise.all(
-    learnerMemberships.map(async (membership) => {
+  const memberCommunities = await Promise.all(
+    memberMemberships.map(async (membership) => {
       const progress = await db.classroomItemProgress.findMany({
         where: {
           memberId: session.user.id,
@@ -49,16 +49,16 @@ export default async function ProgressPage() {
       return {
         communityId: membership.communityId,
         title: membership.community.title,
-        totalLessons: membership.community.classroomItems.length,
+        totalClassroomItems: membership.community.classroomItems.length,
         completed,
         percentage:
           membership.community.classroomItems.length > 0
             ? Math.round((completed / membership.community.classroomItems.length) * 100)
             : 0,
-        classroomItems: membership.community.classroomItems.map((lesson) => ({
-          id: lesson.id,
-          title: lesson.title,
-          completed: progressMap.get(lesson.id) ?? false,
+        classroomItems: membership.community.classroomItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          completed: progressMap.get(item.id) ?? false,
         })),
         evaluation: membership.community.evaluations[0]
           ? {
@@ -70,7 +70,7 @@ export default async function ProgressPage() {
     }),
   );
 
-  const teacherCourses =
+  const ownerCommunities =
     session.user.role === "OWNER" || session.user.role === "ADMIN"
       ? await Promise.all(
           (
@@ -81,10 +81,10 @@ export default async function ProgressPage() {
                   : { ownerId: session.user.id },
               orderBy: { createdAt: "desc" },
             })
-          ).map(async (course) => {
+          ).map(async (community) => {
             const activeMemberships = await db.communityMembership.findMany({
               where: {
-                communityId: course.id,
+                communityId: community.id,
                 status: "ACTIVE",
               },
               include: {
@@ -98,8 +98,8 @@ export default async function ProgressPage() {
               },
             });
 
-            const totalLessons = await db.classroomItem.count({
-              where: { communityId: course.id },
+            const totalClassroomItems = await db.classroomItem.count({
+              where: { communityId: community.id },
             });
 
             const members = await Promise.all(
@@ -108,7 +108,7 @@ export default async function ProgressPage() {
                   where: {
                     memberId: membership.memberId,
                     completed: true,
-                    classroomItem: { communityId: course.id },
+                    classroomItem: { communityId: community.id },
                   },
                 });
 
@@ -119,18 +119,18 @@ export default async function ProgressPage() {
                     membership.member.email?.split("@")[0] ??
                     "Member",
                   completed,
-                  totalLessons,
+                  totalClassroomItems,
                   percentage:
-                    totalLessons > 0
-                      ? Math.round((completed / totalLessons) * 100)
+                    totalClassroomItems > 0
+                      ? Math.round((completed / totalClassroomItems) * 100)
                       : 0,
                 };
               }),
             );
 
             return {
-              communityId: course.id,
-              title: course.title,
+              communityId: community.id,
+              title: community.title,
               members,
             };
           }),
@@ -139,8 +139,8 @@ export default async function ProgressPage() {
 
   return (
     <ProgressWorkspace
-      learnerCourses={learnerCourses}
-      teacherCourses={teacherCourses}
+      memberCommunities={memberCommunities}
+      ownerCommunities={ownerCommunities}
     />
   );
 }

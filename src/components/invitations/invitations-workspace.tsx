@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Invitation = {
   id: string;
@@ -20,6 +21,7 @@ type CommunityCard = {
   title: string;
   description: string;
   classroomItemCount: number;
+  isFree: boolean;
 };
 
 type InvitationsWorkspaceProps = {
@@ -38,6 +40,7 @@ export function InvitationsWorkspace({
   const [invitations, setInvitations] = useState(initialInvitations);
   const [joinRequests, setJoinRequests] = useState(initialRequests);
   const [status, setStatus] = useState("");
+  const router = useRouter();
 
   const requestMap = useMemo(
     () => new Map(joinRequests.map((request) => [request.communityId, request])),
@@ -69,8 +72,13 @@ export function InvitationsWorkspace({
     setStatus(`Invitation ${nextStatus.toLowerCase()}.`);
   }
 
-  async function createJoinRequest(communityId: string) {
-    const response = await fetch(`/api/communities/${communityId}/join-requests`, {
+  async function joinCommunity(community: CommunityCard) {
+    if (!community.isFree) {
+      router.push(`/dashboard/checkout?communityId=${community.id}`);
+      return;
+    }
+
+    const response = await fetch(`/api/communities/${community.id}/join-requests`, {
       method: "POST",
     });
     const payload = (await response.json().catch(() => null)) as
@@ -84,7 +92,7 @@ export function InvitationsWorkspace({
 
     setJoinRequests((current) => [
       payload.request as JoinRequest,
-      ...current.filter((request) => request.communityId !== communityId),
+      ...current.filter((request) => request.communityId !== community.id),
     ]);
     setStatus("Join request submitted.");
   }
@@ -193,10 +201,10 @@ export function InvitationsWorkspace({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => createJoinRequest(community.id)}
+                        onClick={() => joinCommunity(community)}
                         className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
                       >
-                        Request access
+                        Join community
                       </button>
                     )}
                   </div>

@@ -27,7 +27,7 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const { itemId } = await params;
-  const lesson = await db.classroomItem.findUnique({
+  const classroomItem = await db.classroomItem.findUnique({
     where: { id: itemId },
     include: {
       community: {
@@ -38,11 +38,11 @@ export async function PATCH(request: Request, { params }: Params) {
     },
   });
 
-  if (!lesson) {
+  if (!classroomItem) {
     return jsonError("Classroom item not found.", 404);
   }
 
-  if (user.role !== "ADMIN" && lesson.community.ownerId !== user.id) {
+  if (user.role !== "ADMIN" && classroomItem.community.ownerId !== user.id) {
     return jsonError("You cannot update this classroom item.", 403);
   }
 
@@ -56,7 +56,7 @@ export async function PATCH(request: Request, { params }: Params) {
     | null;
 
   const updated = await db.classroomItem.update({
-    where: { id: lesson.id },
+    where: { id: classroomItem.id },
     data: {
       title: body?.title?.trim() || undefined,
       content: body?.content?.trim() || undefined,
@@ -79,7 +79,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   const { itemId } = await params;
-  const lesson = await db.classroomItem.findUnique({
+  const classroomItem = await db.classroomItem.findUnique({
     where: { id: itemId },
     include: {
       community: {
@@ -90,17 +90,17 @@ export async function DELETE(_request: Request, { params }: Params) {
     },
   });
 
-  if (!lesson) {
+  if (!classroomItem) {
     return jsonError("Classroom item not found.", 404);
   }
 
-  if (user.role !== "ADMIN" && lesson.community.ownerId !== user.id) {
+  if (user.role !== "ADMIN" && classroomItem.community.ownerId !== user.id) {
     return jsonError("You cannot delete this classroom item.", 403);
   }
 
   await db.classroomItem.delete({
-    where: { id: lesson.id },
+    where: { id: classroomItem.id },
   });
 
-  return NextResponse.json({ success: true, itemId: lesson.id });
+  return NextResponse.json({ success: true, itemId: classroomItem.id });
 }

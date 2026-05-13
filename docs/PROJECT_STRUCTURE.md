@@ -1,4 +1,4 @@
-# Project Structure (Stable Standard)
+# Project Structure (Current)
 
 ```text
 .
@@ -13,17 +13,22 @@
 │   ├── app/
 │   │   ├── api/
 │   │   │   ├── auth/[...nextauth]/route.ts
-│   │   │   └── admin/courses/route.ts
+│   │   │   ├── admin/communities/route.ts
+│   │   │   ├── communities/route.ts
+│   │   │   └── posts/[postId]/comments/route.ts
 │   │   ├── auth/signin/page.tsx
 │   │   ├── dashboard/
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── admin/page.tsx
-│   │   │   ├── community/page.tsx
 │   │   │   ├── checkout/page.tsx
-│   │   │   ├── courses/page.tsx
-│   │   │   └── courses/[courseId]/lessons/[lessonId]/page.tsx
-│   │   │   └── deploy/page.tsx
+│   │   │   ├── communities/[communityId]/page.tsx
+│   │   │   ├── invitations/page.tsx
+│   │   │   ├── owned-communities/page.tsx
+│   │   │   └── progress/page.tsx
+│   │   ├── communities/[slug]/about/page.tsx
+│   │   ├── communities/[slug]/classroom/page.tsx
+│   │   ├── communities/[slug]/community/page.tsx
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
@@ -43,7 +48,7 @@
 
 Guidelines:
 - Use `src/features/<feature-name>` for product domains such as `auth`,
-  `admin`, `courses`, `lessons`, or `community`.
+  `admin`, `community`, `classroom`, or `progress`.
 - Keep shared route scaffolding stable so teammate branches can plug feature work
   into existing pages instead of inventing new paths.
 - Keep App Router files thin and call feature modules.

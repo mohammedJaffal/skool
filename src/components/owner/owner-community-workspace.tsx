@@ -595,7 +595,7 @@ export function OwnerCommunityWorkspace({
                   <h2 className="text-lg font-semibold">Classroom</h2>
                   <p className="mt-1 text-sm text-[color:var(--muted)]">
                     Use the content type field to mark a classroom item as video,
-                    lesson text, or workshop material.
+                    text content, or workshop material.
                   </p>
                   <div className="mt-4 space-y-4">
                     {selectedCommunity.classroomItems.map((classroomItem) => (
@@ -646,7 +646,11 @@ export function OwnerCommunityWorkspace({
                         />
                         <div className="flex gap-2">
                           <select
-                            value={classroomItem.contentType}
+                            value={
+                              classroomItem.contentType === "lesson"
+                                ? "text"
+                                : classroomItem.contentType
+                            }
                             onChange={(event) =>
                               setCommunities((current) =>
                                 current.map((community) =>
@@ -669,7 +673,7 @@ export function OwnerCommunityWorkspace({
                             className="w-full rounded-[8px] border border-[color:var(--line)] bg-white px-3 py-2 text-sm outline-none"
                           >
                             <option value="video">Video</option>
-                            <option value="lesson">Lesson</option>
+                            <option value="text">Text</option>
                             <option value="workshop">Workshop</option>
                           </select>
                           <button
@@ -711,7 +715,11 @@ export function OwnerCommunityWorkspace({
                         className="w-full rounded-[8px] border border-[color:var(--line)] px-3 py-2 text-sm outline-none"
                       />
                       <select
-                        value={newClassroomItem.contentType}
+                        value={
+                          newClassroomItem.contentType === "lesson"
+                            ? "text"
+                            : newClassroomItem.contentType
+                        }
                         onChange={(event) =>
                           setNewClassroomItem((current) => ({
                             ...current,
@@ -721,7 +729,7 @@ export function OwnerCommunityWorkspace({
                         className="w-full rounded-[8px] border border-[color:var(--line)] px-3 py-2 text-sm outline-none"
                       >
                         <option value="video">Video</option>
-                        <option value="lesson">Lesson</option>
+                        <option value="text">Text</option>
                         <option value="workshop">Workshop</option>
                       </select>
                       <button

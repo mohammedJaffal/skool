@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { CommunityTopBar } from "@/components/community/community-branding";
 import { CommunityTabs } from "@/components/community/community-tabs";
-import { getCommunityBySlugOrCourse } from "@/lib/community-data";
+import { getCommunityBySlug } from "@/lib/community-data";
 
 export default async function CommunityLayout({
   children,
@@ -13,7 +13,7 @@ export default async function CommunityLayout({
 }>) {
   const { slug } = await params;
   const session = await auth();
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();

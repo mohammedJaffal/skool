@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { OwnerCommunityWorkspace } from "@/components/owner/owner-community-workspace";
 
-export default async function TeachPage() {
+export default async function OwnedCommunitiesPage() {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -56,18 +56,18 @@ export default async function TeachPage() {
           type: community.type,
           status: community.status,
           documents: community.documents,
-          classroomItems: community.classroomItems.map((lesson) => ({
-            id: lesson.id,
-            title: lesson.title,
-            content: lesson.content,
-            contentType: lesson.contentType,
-            position: lesson.position,
+          classroomItems: community.classroomItems.map((item) => ({
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            contentType: item.contentType,
+            position: item.position,
           })),
-          posts: community.posts.map((announcement) => ({
-            id: announcement.id,
-            title: announcement.title,
-            content: announcement.content,
-            status: announcement.status,
+          posts: community.posts.map((post) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            status: post.status,
           })),
         }))}
       />

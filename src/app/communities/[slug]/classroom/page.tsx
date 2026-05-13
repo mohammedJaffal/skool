@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import {
-  getCommunityBySlugOrCourse,
+  getCommunityBySlug,
   getCommunityClassroomPreview,
   isCommunityMember,
 } from "@/lib/community-data";
@@ -13,7 +13,7 @@ export default async function CommunityClassroomPage({
 }) {
   const { slug } = await params;
   const session = await auth();
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();
@@ -41,8 +41,8 @@ export default async function CommunityClassroomPage({
           {classroom.description}
         </p>
         <p className="mt-3 text-sm text-[color:var(--muted)]">
-          {classroom.instructor} · {classroom.duration} · {classroom.lessons.length}{" "}
-          modules
+          {classroom.ownerName} · {classroom.duration} ·{" "}
+          {classroom.classroomItems.length} modules
         </p>
         <p className="mt-3 text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
           {member ? "Member access" : "Preview"}
@@ -50,13 +50,13 @@ export default async function CommunityClassroomPage({
       </section>
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {classroom.lessons.map((lesson, index) => {
+        {classroom.classroomItems.map((item, index) => {
           const progress = 0;
-          const imageSeed = encodeURIComponent(`${community.slug}-${lesson.id}`);
+          const imageSeed = encodeURIComponent(`${community.slug}-${item.id}`);
 
           return (
             <article
-              key={lesson.id}
+              key={item.id}
               className="overflow-hidden rounded-[16px] border border-[color:var(--line)] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
             >
               <div
@@ -71,16 +71,16 @@ export default async function CommunityClassroomPage({
                     Module {index + 1}
                   </p>
                   <h2 className="mt-2 text-2xl font-bold leading-tight">
-                    {lesson.title}
+                    {item.title}
                   </h2>
                   <p className="mt-3 text-base leading-7 text-[color:var(--muted)]">
-                    {lesson.content}
+                    {item.content}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between text-sm font-semibold text-[color:var(--foreground)]">
                   <span>{progress}%</span>
-                  <span>{lesson.duration}</span>
+                  <span>{item.duration}</span>
                 </div>
                 <div className="h-5 rounded-full bg-[#ececec]">
                   <div

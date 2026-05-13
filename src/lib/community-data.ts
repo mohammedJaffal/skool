@@ -1,5 +1,8 @@
 import { db } from "@/lib/db";
-import { getCourseDetailById, listCourseCards } from "@/lib/platform-data";
+import {
+  getCommunityDetailById as getPlatformCommunityDetailById,
+  listCommunityCards as listPlatformCommunityCards,
+} from "@/lib/platform-data";
 
 function initialsFromName(name?: string | null, email?: string | null) {
   const source = (name?.trim() || email?.split("@")[0] || "CD").trim();
@@ -29,7 +32,7 @@ export type CommunityThread = {
 export type CommunityData = {
   slug: string;
   name: string;
-  accessCourseSlug: string;
+  linkedCommunitySlug: string;
   heroImage: string;
   shortDescription: string;
   description: string;
@@ -58,7 +61,7 @@ export type CommunityMemberPreview = {
 export const COMMUNITIES: CommunityData[] = [
   {
     slug: "campus-builders",
-    accessCourseSlug: "react-foundations-lab",
+    linkedCommunitySlug: "react-foundations-lab",
     name: "Campus Builders",
     heroImage: "https://picsum.photos/seed/campus-builders/1200/700",
     shortDescription:
@@ -84,26 +87,26 @@ export const COMMUNITIES: CommunityData[] = [
     ],
     sampleMembers: [
       {
-        name: "Nadia Teacher",
-        role: "Teacher",
+        name: "Nadia Owner",
+        role: "Owner",
         note: "Runs the classroom and weekly review thread.",
       },
       {
-        name: "Yassine Learner",
-        role: "Learner",
+        name: "Yassine Member",
+        role: "Member",
         note: "Posting progress from the React path.",
       },
       {
-        name: "Sara Invitee",
-        role: "Learner",
-        note: "Waiting on invitation approval for the next cohort.",
+        name: "Sara Member",
+        role: "Member",
+        note: "Waiting on access approval for the next cohort.",
       },
     ],
     threads: [
       {
         id: "cb-1",
-        authorName: "Yassine Learner",
-        authorInitials: "YL",
+        authorName: "Yassine Member",
+        authorInitials: "YM",
         postedAt: "2h ago",
         headline: "Finished the dashboard slice without waiting on the API",
         body:
@@ -113,8 +116,8 @@ export const COMMUNITIES: CommunityData[] = [
       },
       {
         id: "cb-2",
-        authorName: "Nadia Teacher",
-        authorInitials: "NT",
+        authorName: "Nadia Owner",
+        authorInitials: "NO",
         postedAt: "5h ago",
         headline: "Use the branch review checklist before asking for merge",
         body:
@@ -124,8 +127,8 @@ export const COMMUNITIES: CommunityData[] = [
       },
       {
         id: "cb-3",
-        authorName: "Sara Invitee",
-        authorInitials: "SI",
+        authorName: "Sara Member",
+        authorInitials: "SM",
         postedAt: "1d ago",
         headline: "Question about keeping UI work unblocked before backend is ready",
         body:
@@ -137,7 +140,7 @@ export const COMMUNITIES: CommunityData[] = [
   },
   {
     slug: "ai-automation-society",
-    accessCourseSlug: "nextjs-launchpad",
+    linkedCommunitySlug: "nextjs-launchpad",
     name: "AI Automation Society",
     heroImage: "https://picsum.photos/seed/ai-automation-society/1200/700",
     shortDescription:
@@ -163,7 +166,7 @@ export const COMMUNITIES: CommunityData[] = [
     ],
     sampleMembers: [
       {
-        name: "Nadia Teacher",
+        name: "Nadia Owner",
         role: "Host",
         note: "Leads the weekly systems review.",
       },
@@ -192,8 +195,8 @@ export const COMMUNITIES: CommunityData[] = [
       },
       {
         id: "aa-2",
-        authorName: "Nadia Teacher",
-        authorInitials: "NT",
+        authorName: "Nadia Owner",
+        authorInitials: "NO",
         postedAt: "3h ago",
         headline: "Tonight’s module: default public routes vs member-only actions",
         body:
@@ -216,7 +219,7 @@ export const COMMUNITIES: CommunityData[] = [
   },
   {
     slug: "maker-sprint-lab",
-    accessCourseSlug: "react-foundations-lab",
+    linkedCommunitySlug: "react-foundations-lab",
     name: "Maker Sprint Lab",
     heroImage: "https://picsum.photos/seed/maker-sprint-lab/1200/700",
     shortDescription:
@@ -247,12 +250,12 @@ export const COMMUNITIES: CommunityData[] = [
         note: "Shares finished slices at the end of every sprint.",
       },
       {
-        name: "Nadia Teacher",
+        name: "Nadia Owner",
         role: "Host",
         note: "Runs the checkpoint reviews.",
       },
       {
-        name: "Yassine Learner",
+        name: "Yassine Member",
         role: "Member",
         note: "Using the group to keep work moving every week.",
       },
@@ -265,14 +268,14 @@ export const COMMUNITIES: CommunityData[] = [
         postedAt: "1h ago",
         headline: "Sprint 3 wrap-up: three screens done, one blocker left",
         body:
-          "The layout work is done. The only blocker left is ownership checks on the lesson route, so I’m isolating that before starting anything else.",
+          "The layout work is done. The only blocker left is ownership checks on the classroom item route, so I’m isolating that before starting anything else.",
         replies: 5,
         likes: 17,
       },
       {
         id: "ms-2",
-        authorName: "Yassine Learner",
-        authorInitials: "YL",
+        authorName: "Yassine Member",
+        authorInitials: "YM",
         postedAt: "6h ago",
         headline: "Short note on not overdesigning internal pages",
         body:
@@ -284,7 +287,7 @@ export const COMMUNITIES: CommunityData[] = [
   },
   {
     slug: "creator-launch-club",
-    accessCourseSlug: "nextjs-launchpad",
+    linkedCommunitySlug: "nextjs-launchpad",
     name: "Creator Launch Club",
     heroImage: "https://picsum.photos/seed/creator-launch-club/1200/700",
     shortDescription:
@@ -340,7 +343,7 @@ export const COMMUNITIES: CommunityData[] = [
   },
   {
     slug: "wellness-habit-circle",
-    accessCourseSlug: "react-foundations-lab",
+    linkedCommunitySlug: "react-foundations-lab",
     name: "Wellness Habit Circle",
     heroImage: "https://picsum.photos/seed/wellness-habit-circle/1200/700",
     shortDescription:
@@ -396,7 +399,7 @@ export const COMMUNITIES: CommunityData[] = [
   },
   {
     slug: "freelance-systems-forum",
-    accessCourseSlug: "nextjs-launchpad",
+    linkedCommunitySlug: "nextjs-launchpad",
     name: "Freelance Systems Forum",
     heroImage: "https://picsum.photos/seed/freelance-systems-forum/1200/700",
     shortDescription:
@@ -452,22 +455,18 @@ export const COMMUNITIES: CommunityData[] = [
   },
 ];
 
-export function listCommunities() {
-  return COMMUNITIES;
-}
-
-export function getCommunityBySlug(slug: string) {
+function getStaticCommunityBySlug(slug: string) {
   return COMMUNITIES.find((community) => community.slug === slug) ?? null;
 }
 
-export async function getCommunityBySlugOrCourse(slug: string) {
-  const staticCommunity = getCommunityBySlug(slug);
+export async function getCommunityBySlug(slug: string) {
+  const staticCommunity = getStaticCommunityBySlug(slug);
 
   if (staticCommunity) {
     return staticCommunity;
   }
 
-  const course = await db.community.findUnique({
+  const communityRecord = await db.community.findUnique({
     where: { slug },
     include: {
       owner: {
@@ -484,50 +483,52 @@ export async function getCommunityBySlugOrCourse(slug: string) {
     },
   });
 
-  if (!course) {
+  if (!communityRecord) {
     return null;
   }
 
-  const teacherName =
-    course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
+  const ownerName =
+    communityRecord.owner.name ??
+    communityRecord.owner.email?.split("@")[0] ??
+    "Campus Digital";
 
   return {
-    slug: course.slug,
-    accessCourseSlug: course.slug,
-    name: course.title,
-    heroImage: `https://picsum.photos/seed/${encodeURIComponent(course.slug)}/1200/700`,
-    shortDescription: course.description,
-    description: course.description,
-    offerSummary: `Guided by ${teacherName}. Includes classroom classroomItems, posts, and member access.`,
+    slug: communityRecord.slug,
+    linkedCommunitySlug: communityRecord.slug,
+    name: communityRecord.title,
+    heroImage: `https://picsum.photos/seed/${encodeURIComponent(communityRecord.slug)}/1200/700`,
+    shortDescription: communityRecord.description,
+    description: communityRecord.description,
+    offerSummary: `Guided by ${ownerName}. Includes classroom items, posts, and member access.`,
     priceLabel: "Free",
-    memberCount: String(course._count.memberships),
+    memberCount: String(communityRecord._count.memberships),
     onlineCount: "0",
     coverTone: "#d9d3c7",
-    topics: [course.type, "Classroom", "Discussion"],
+    topics: [communityRecord.type, "Classroom", "Discussion"],
     highlights: [
-      "Structured classroom classroomItems",
-      "Teacher posts",
+      "Structured classroom items",
+      "Owner posts",
       "Member access and progress tracking",
     ],
     rules: [
-      "Keep questions connected to the lesson or course task.",
+      "Keep questions connected to the classroom item or community task.",
       "Share progress clearly before asking for review.",
       "Use comments for concrete feedback and blockers.",
     ],
     sampleMembers: [
       {
-        name: teacherName,
-        role: "Teacher",
+        name: ownerName,
+        role: "Owner",
         note: "Runs the classroom and reviews member progress.",
       },
     ],
     threads: [
       {
-        id: `${course.slug}-welcome`,
-        authorName: teacherName,
-        authorInitials: initialsFromName(teacherName, course.owner.email),
+        id: `${communityRecord.slug}-welcome`,
+        authorName: ownerName,
+        authorInitials: initialsFromName(ownerName, communityRecord.owner.email),
         postedAt: "today",
-        headline: `Welcome to ${course.title}`,
+        headline: `Welcome to ${communityRecord.title}`,
         body: "Start with the classroom, post blockers clearly, and keep progress visible for review.",
         replies: 0,
         likes: 0,
@@ -537,7 +538,7 @@ export async function getCommunityBySlugOrCourse(slug: string) {
 }
 
 export async function listCommunityCards() {
-  const courses = await db.community.findMany({
+  const communities = await db.community.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       owner: {
@@ -555,31 +556,31 @@ export async function listCommunityCards() {
     },
   });
 
-  const databaseCards = courses.map((course) => {
+  const databaseCards = communities.map((community) => {
     const fallback = COMMUNITIES.find(
-      (community) => community.accessCourseSlug === course.slug,
+      (item) => item.linkedCommunitySlug === community.slug,
     );
-    const teacherName =
-      course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
+    const ownerName =
+      community.owner.name ?? community.owner.email?.split("@")[0] ?? "Campus Digital";
 
     return {
-      slug: fallback?.slug ?? course.slug,
-      name: course.title,
-      shortDescription: course.description,
+      slug: fallback?.slug ?? community.slug,
+      name: community.title,
+      shortDescription: community.description,
       memberCount:
-        course._count.memberships > 0
-          ? String(course._count.memberships)
+        community._count.memberships > 0
+          ? String(community._count.memberships)
           : fallback?.memberCount ?? "0",
       onlineCount: fallback?.onlineCount ?? "0",
       priceLabel: fallback?.priceLabel ?? "Free",
       heroImage:
         fallback?.heroImage ??
-        `https://picsum.photos/seed/${encodeURIComponent(course.slug)}/1200/700`,
-      courseTitle: course.title,
-      courseMeta: `${course._count.classroomItems} lesson${course._count.classroomItems === 1 ? "" : "s"}`,
+        `https://picsum.photos/seed/${encodeURIComponent(community.slug)}/1200/700`,
+      classroomTitle: community.title,
+      classroomMeta: `${community._count.classroomItems} classroom item${community._count.classroomItems === 1 ? "" : "s"}`,
       latestHeadline:
-        fallback?.threads[0]?.headline ?? `New classroom by ${teacherName}`,
-      latestAuthor: fallback?.threads[0]?.authorName ?? teacherName,
+        fallback?.threads[0]?.headline ?? `New classroom by ${ownerName}`,
+      latestAuthor: fallback?.threads[0]?.authorName ?? ownerName,
       coverTone: fallback?.coverTone ?? "#d9d3c7",
     };
   });
@@ -598,8 +599,8 @@ export async function listCommunityCards() {
       onlineCount: community.onlineCount,
       priceLabel: community.priceLabel,
       heroImage: community.heroImage,
-      courseTitle: "Structured classroom",
-      courseMeta: "Guided modules",
+      classroomTitle: "Structured classroom",
+      classroomMeta: "Guided modules",
       latestHeadline: latestThread?.headline ?? "",
       latestAuthor: latestThread?.authorName ?? "",
       coverTone: community.coverTone,
@@ -609,56 +610,29 @@ export async function listCommunityCards() {
   return [...databaseCards, ...fillerCards].slice(0, 6);
 }
 
-export async function listStaticCommunityCards() {
-  const courseCards = await listCourseCards();
-  const cardMap = new Map(courseCards.map((course) => [course.slug, course]));
-
-  return COMMUNITIES.map((community) => {
-    const course = cardMap.get(community.accessCourseSlug);
-    const latestThread = community.threads[0];
-
-    return {
-      slug: community.slug,
-      name: community.name,
-      shortDescription: community.shortDescription,
-      memberCount: community.memberCount,
-      onlineCount: community.onlineCount,
-      priceLabel: community.priceLabel,
-      heroImage: community.heroImage,
-      courseTitle: course?.title ?? "Structured classroom",
-      courseMeta: course
-        ? `${course.classroomItemCount} classroomItems`
-        : "Guided modules",
-      latestHeadline: latestThread?.headline ?? "",
-      latestAuthor: latestThread?.authorName ?? "",
-      coverTone: community.coverTone,
-    };
-  });
-}
-
 export async function getCommunityClassroomPreview(slug: string) {
-  const community = getCommunityBySlug(slug);
-  const accessCourseSlug = community?.accessCourseSlug ?? slug;
+  const community = await getCommunityBySlug(slug);
+  const linkedCommunitySlug = community?.linkedCommunitySlug ?? slug;
 
-  const courses = await listCourseCards();
-  const courseCard =
-    courses.find((course) => course.slug === accessCourseSlug) ?? null;
+  const communities = await listPlatformCommunityCards();
+  const communityCard =
+    communities.find((item) => item.slug === linkedCommunitySlug) ?? null;
 
-  if (!courseCard) {
+  if (!communityCard) {
     return null;
   }
 
-  return getCourseDetailById(courseCard.id);
+  return getPlatformCommunityDetailById(communityCard.id);
 }
 
 export async function getCommunityMembersPreview(
   slug: string,
 ): Promise<CommunityMemberPreview[]> {
-  const community = getCommunityBySlug(slug);
-  const accessCourseSlug = community?.accessCourseSlug ?? slug;
+  const community = await getCommunityBySlug(slug);
+  const linkedCommunitySlug = community?.linkedCommunitySlug ?? slug;
 
-  const course = await db.community.findUnique({
-    where: { slug: accessCourseSlug },
+  const communityRecord = await db.community.findUnique({
+    where: { slug: linkedCommunitySlug },
     include: {
       owner: {
         select: {
@@ -682,27 +656,29 @@ export async function getCommunityMembersPreview(
     },
   });
 
-  if (!course) {
+  if (!communityRecord) {
     return community?.sampleMembers ?? [];
   }
 
-  const teacherName =
-    course.owner.name ?? course.owner.email?.split("@")[0] ?? "Campus Digital";
+  const ownerName =
+    communityRecord.owner.name ??
+    communityRecord.owner.email?.split("@")[0] ??
+    "Campus Digital";
 
-  const liveMembers = course.memberships.map((membership) => ({
+  const liveMembers = communityRecord.memberships.map((membership) => ({
     name:
       membership.member.name ??
       membership.member.email?.split("@")[0] ??
       "Campus Member",
     role: "Member",
-    note: "Active learner in the classroom.",
+    note: "Active member in the classroom.",
   }));
 
   return [
     {
-      name: teacherName,
-      role: "Teacher",
-      note: "Runs the classroom and reviews learner progress.",
+      name: ownerName,
+      role: "Owner",
+      note: "Runs the classroom and reviews member progress.",
     },
     ...liveMembers,
   ];
@@ -716,29 +692,29 @@ export async function isCommunityMember(
     return false;
   }
 
-  const community = getCommunityBySlug(slug);
-  const accessCourseSlug = community?.accessCourseSlug ?? slug;
+  const community = await getCommunityBySlug(slug);
+  const linkedCommunitySlug = community?.linkedCommunitySlug ?? slug;
 
-  const course = await db.community.findUnique({
-    where: { slug: accessCourseSlug },
+  const communityRecord = await db.community.findUnique({
+    where: { slug: linkedCommunitySlug },
     select: {
       id: true,
       ownerId: true,
     },
   });
 
-  if (!course) {
+  if (!communityRecord) {
     return viewer.role === "ADMIN";
   }
 
-  if (viewer.role === "ADMIN" || course.ownerId === viewer.id) {
+  if (viewer.role === "ADMIN" || communityRecord.ownerId === viewer.id) {
     return true;
   }
 
   const membership = await db.communityMembership.findUnique({
     where: {
       communityId_memberId: {
-        communityId: course.id,
+        communityId: communityRecord.id,
         memberId: viewer.id,
       },
     },

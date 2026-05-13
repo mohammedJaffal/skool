@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   getSessionUser,
-  hasActiveCourseAccess,
+  hasActiveCommunityAccess,
   jsonError,
 } from "@/lib/request-auth";
 
-type Params = { params: Promise<{ announcementId: string }> };
+type Params = { params: Promise<{ postId: string }> };
 
 export async function GET(_request: Request, { params }: Params) {
-  const { announcementId } = await params;
-  const announcement = await db.communityPost.findUnique({
-    where: { id: announcementId },
+  const { postId } = await params;
+  const post = await db.communityPost.findUnique({
+    where: { id: postId },
     include: {
       comments: {
         orderBy: { createdAt: "asc" },
@@ -27,12 +27,12 @@ export async function GET(_request: Request, { params }: Params) {
     },
   });
 
-  if (!announcement) {
-    return jsonError("Announcement not found.", 404);
+  if (!post) {
+    return jsonError("Post not found.", 404);
   }
 
   return NextResponse.json({
-    comments: announcement.comments.map((comment) => ({
+    comments: post.comments.map((comment) => ({
       id: comment.id,
       authorName:
         comment.author.name ??
@@ -51,21 +51,21 @@ export async function POST(request: Request, { params }: Params) {
     return jsonError("You must be signed in to comment.", 401);
   }
 
-  const { announcementId } = await params;
-  const announcement = await db.communityPost.findUnique({
-    where: { id: announcementId },
+  const { postId } = await params;
+  const post = await db.communityPost.findUnique({
+    where: { id: postId },
     select: {
       id: true,
       communityId: true,
     },
   });
 
-  if (!announcement) {
-    return jsonError("Announcement not found.", 404);
+  if (!post) {
+    return jsonError("Post not found.", 404);
   }
 
-  if (!(await hasActiveCourseAccess(announcement.communityId, user))) {
-    return jsonError("You do not have access to this course thread.", 403);
+  if (!(await hasActiveCommunityAccess(post.communityId, user))) {
+    return jsonError("You do not have access to this community thread.", 403);
   }
 
   const body = (await request.json().catch(() => null)) as
@@ -79,7 +79,7 @@ export async function POST(request: Request, { params }: Params) {
 
   const comment = await db.comment.create({
     data: {
-      postId: announcementId,
+      postId,
       authorId: user.id,
       content,
     },

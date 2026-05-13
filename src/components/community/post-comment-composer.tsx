@@ -2,27 +2,24 @@
 
 import { useState } from "react";
 
-type AnnouncementCommentComposerProps = {
-  announcementId: string;
+type PostCommentComposerProps = {
+  postId: string;
   signedIn: boolean;
 };
 
-export function AnnouncementCommentComposer({
-  announcementId,
+export function PostCommentComposer({
+  postId,
   signedIn,
-}: AnnouncementCommentComposerProps) {
+}: PostCommentComposerProps) {
   const [content, setContent] = useState("");
   const [status, setStatus] = useState("");
 
   async function submitComment() {
-    const response = await fetch(
-      `/api/announcements/${announcementId}/comments`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      },
-    );
+    const response = await fetch(`/api/posts/${postId}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
 
     const payload = (await response.json().catch(() => null)) as
       | { error?: string }
@@ -40,7 +37,7 @@ export function AnnouncementCommentComposer({
   if (!signedIn) {
     return (
       <div className="rounded-[18px] border border-dashed border-[color:var(--line)] bg-[color:var(--surface-soft)] p-4 text-sm text-[color:var(--muted)]">
-        Sign in to participate in this course discussion.
+        Sign in to participate in this community discussion.
       </div>
     );
   }
@@ -70,4 +67,3 @@ export function AnnouncementCommentComposer({
     </div>
   );
 }
-

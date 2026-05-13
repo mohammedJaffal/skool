@@ -1,22 +1,22 @@
 import { EnrollForm } from "@/components/checkout/enroll-form";
-import { getCourseDetailById, listCourseCards } from "@/lib/platform-data";
+import { getCommunityDetailById, listCommunityCards } from "@/lib/platform-data";
 
 interface Props {
-  searchParams: Promise<{ courseId?: string }>;
+  searchParams: Promise<{ communityId?: string }>;
 }
 
 export default async function CheckoutPage({ searchParams }: Props) {
-  const { courseId } = await searchParams;
-  const cards = await listCourseCards();
-  const firstCourseId = cards[0]?.id;
-  const course = courseId
-    ? await getCourseDetailById(courseId)
-    : firstCourseId
-      ? await getCourseDetailById(firstCourseId)
+  const { communityId } = await searchParams;
+  const cards = await listCommunityCards();
+  const firstCommunityId = cards[0]?.id;
+  const community = communityId
+    ? await getCommunityDetailById(communityId)
+    : firstCommunityId
+      ? await getCommunityDetailById(firstCommunityId)
       : null;
-  if (!course)
+  if (!community)
     return (
-      <p className="text-[color:var(--muted)]">Course not found.</p>
+      <p className="text-[color:var(--muted)]">Community not found.</p>
     );
 
   return (
@@ -25,18 +25,18 @@ export default async function CheckoutPage({ searchParams }: Props) {
         <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
           Checkout
         </p>
-        <h1 className="text-2xl font-semibold">Enroll in Course</h1>
+        <h1 className="text-2xl font-semibold">Join community</h1>
       </div>
       <div className="mx-auto max-w-md">
         <EnrollForm
-          course={{
-            id: course.id,
-            title: course.title,
-            price: course.price,
-            instructor: course.instructor,
-            duration: course.duration,
-            level: course.level,
-            lessons: course.lessons,
+          community={{
+            id: community.id,
+            title: community.title,
+            price: community.price,
+            ownerName: community.ownerName,
+            duration: community.duration,
+            level: community.level,
+            classroomItems: community.classroomItems,
           }}
         />
       </div>

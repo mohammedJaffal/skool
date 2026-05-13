@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 
-type LearnerCourse = {
+type MemberCommunity = {
   communityId: string;
   title: string;
-  totalLessons: number;
+  totalClassroomItems: number;
   completed: number;
   percentage: number;
   classroomItems: {
@@ -19,62 +19,62 @@ type LearnerCourse = {
   } | null;
 };
 
-type TeacherCourse = {
+type OwnerCommunity = {
   communityId: string;
   title: string;
   members: {
     memberId: string;
     memberName: string;
     completed: number;
-    totalLessons: number;
+    totalClassroomItems: number;
     percentage: number;
   }[];
 };
 
 type ProgressWorkspaceProps = {
-  learnerCourses: LearnerCourse[];
-  teacherCourses: TeacherCourse[];
+  memberCommunities: MemberCommunity[];
+  ownerCommunities: OwnerCommunity[];
 };
 
 export function ProgressWorkspace({
-  learnerCourses: initialLearnerCourses,
-  teacherCourses,
+  memberCommunities: initialMemberCommunities,
+  ownerCommunities,
 }: ProgressWorkspaceProps) {
-  const [learnerCourses, setLearnerCourses] = useState(initialLearnerCourses);
-  const [selectedTeacherCourseId, setSelectedTeacherCourseId] = useState(
-    teacherCourses[0]?.communityId ?? "",
+  const [memberCommunities, setMemberCommunities] = useState(initialMemberCommunities);
+  const [selectedOwnerCommunityId, setSelectedOwnerCommunityId] = useState(
+    ownerCommunities[0]?.communityId ?? "",
   );
-  const [selectedLearnerId, setSelectedLearnerId] = useState(
-    teacherCourses[0]?.members[0]?.memberId ?? "",
+  const [selectedMemberId, setSelectedMemberId] = useState(
+    ownerCommunities[0]?.members[0]?.memberId ?? "",
   );
   const [draftFeedback, setDraftFeedback] = useState<Record<string, string>>(
     Object.fromEntries(
-      initialLearnerCourses.map((course) => [
-        course.communityId,
-        course.evaluation?.feedback ?? "",
+      initialMemberCommunities.map((communityProgress) => [
+        communityProgress.communityId,
+        communityProgress.evaluation?.feedback ?? "",
       ]),
     ),
   );
   const [status, setStatus] = useState("");
 
-  const selectedTeacherCourse =
-    teacherCourses.find((course) => course.communityId === selectedTeacherCourseId) ??
-    teacherCourses[0] ??
+  const selectedOwnerCommunity =
+    ownerCommunities.find((communityProgress) => communityProgress.communityId === selectedOwnerCommunityId) ??
+    ownerCommunities[0] ??
     null;
 
-  const selectedLearner = useMemo(() => {
-    if (!selectedTeacherCourse) {
+  const selectedMember = useMemo(() => {
+    if (!selectedOwnerCommunity) {
       return null;
     }
 
     return (
-      selectedTeacherCourse.members.find(
-        (learner) => learner.memberId === selectedLearnerId,
+      selectedOwnerCommunity.members.find(
+        (member) => member.memberId === selectedMemberId,
       ) ??
-      selectedTeacherCourse.members[0] ??
+      selectedOwnerCommunity.members[0] ??
       null
     );
-  }, [selectedLearnerId, selectedTeacherCourse]);
+  }, [selectedMemberId, selectedOwnerCommunity]);
 
   async function toggleProgress(
     communityId: string,
@@ -91,28 +91,28 @@ export function ProgressWorkspace({
       const payload = (await response.json().catch(() => null)) as
         | { error?: string }
         | null;
-      setStatus(payload?.error ?? "Could not update lesson progress.");
+      setStatus(payload?.error ?? "Could not update classroom progress.");
       return;
     }
 
-    setLearnerCourses((current) =>
-      current.map((course) => {
-        if (course.communityId !== communityId) {
-          return course;
+    setMemberCommunities((current) =>
+      current.map((communityProgress) => {
+        if (communityProgress.communityId !== communityId) {
+          return communityProgress;
         }
 
-        const classroomItems = course.classroomItems.map((lesson) =>
-          lesson.id === classroomItemId ? { ...lesson, completed } : lesson,
+        const classroomItems = communityProgress.classroomItems.map((classroomItem) =>
+          classroomItem.id === classroomItemId ? { ...classroomItem, completed } : classroomItem,
         );
-        const completedCount = classroomItems.filter((lesson) => lesson.completed).length;
+        const completedCount = classroomItems.filter((classroomItem) => classroomItem.completed).length;
 
         return {
-          ...course,
+          ...communityProgress,
           classroomItems,
           completed: completedCount,
           percentage:
-            course.totalLessons > 0
-              ? Math.round((completedCount / course.totalLessons) * 100)
+            communityProgress.totalClassroomItems > 0
+              ? Math.round((completedCount / communityProgress.totalClassroomItems) * 100)
               : 0,
         };
       }),
@@ -136,20 +136,20 @@ export function ProgressWorkspace({
       return;
     }
 
-    setLearnerCourses((current) =>
-      current.map((course) =>
-        course.communityId === communityId
-          ? { ...course, evaluation: { rating, feedback } }
-          : course,
+    setMemberCommunities((current) =>
+      current.map((communityProgress) =>
+        communityProgress.communityId === communityId
+          ? { ...communityProgress, evaluation: { rating, feedback } }
+          : communityProgress,
       ),
     );
     setStatus("Evaluation saved.");
   }
 
   async function submitFeedback(communityId: string) {
-    const course = learnerCourses.find((item) => item.communityId === communityId);
+    const communityProgress = memberCommunities.find((item) => item.communityId === communityId);
 
-    await submitEvaluation(communityId, course?.evaluation?.rating ?? 20);
+    await submitEvaluation(communityId, communityProgress?.evaluation?.rating ?? 20);
   }
 
   return (
@@ -160,7 +160,7 @@ export function ProgressWorkspace({
         </div>
       ) : null}
 
-      {learnerCourses.length > 0 ? (
+      {memberCommunities.length > 0 ? (
         <section className="space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
@@ -168,54 +168,54 @@ export function ProgressWorkspace({
             </p>
             <h1 className="mt-1 text-2xl font-bold">Your progress</h1>
           </div>
-          {learnerCourses.map((course) => (
+          {memberCommunities.map((communityProgress) => (
             <article
-              key={course.communityId}
+              key={communityProgress.communityId}
               className="rounded-[24px] border border-[color:var(--line)] bg-white p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-semibold">{course.title}</h2>
+                  <h2 className="text-xl font-semibold">{communityProgress.title}</h2>
                   <p className="text-sm text-[color:var(--muted)]">
-                    {course.completed}/{course.totalLessons} classroom items completed
+                    {communityProgress.completed}/{communityProgress.totalClassroomItems} classroom items completed
                   </p>
                 </div>
                 <span className="rounded-full bg-[color:var(--chip)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)]">
-                  {course.percentage}%
+                  {communityProgress.percentage}%
                 </span>
               </div>
 
               <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="space-y-2">
-                  {course.classroomItems.map((lesson) => (
+                  {communityProgress.classroomItems.map((classroomItem) => (
                     <div
-                      key={lesson.id}
+                      key={classroomItem.id}
                       className="flex items-center justify-between rounded-[18px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-4"
                     >
-                      <p className="font-medium">{lesson.title}</p>
+                      <p className="font-medium">{classroomItem.title}</p>
                       <button
                         type="button"
                         onClick={() =>
                           toggleProgress(
-                            course.communityId,
-                            lesson.id,
-                            !lesson.completed,
+                            communityProgress.communityId,
+                            classroomItem.id,
+                            !classroomItem.completed,
                           )
                         }
                         className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                          lesson.completed
+                          classroomItem.completed
                             ? "bg-[#ebfff2] text-[#0a7a3f]"
                             : "border border-[color:var(--line)] bg-white"
                         }`}
                       >
-                        {lesson.completed ? "Completed" : "Mark complete"}
+                        {classroomItem.completed ? "Completed" : "Mark complete"}
                       </button>
                     </div>
                   ))}
                 </div>
 
                 <div className="rounded-[18px] border border-[color:var(--line)] bg-[color:var(--surface-soft)] p-4">
-                  <p className="font-semibold">Course evaluation</p>
+                  <p className="font-semibold">Community evaluation</p>
                   <p className="mt-1 text-sm text-[color:var(--muted)]">
                     Give a classroom score between 0 and 20.
                   </p>
@@ -224,29 +224,29 @@ export function ProgressWorkspace({
                     min="0"
                     max="20"
                     step="1"
-                    value={course.evaluation?.rating ?? 20}
+                    value={communityProgress.evaluation?.rating ?? 20}
                     onChange={(event) =>
-                      submitEvaluation(course.communityId, Number(event.target.value))
+                      submitEvaluation(communityProgress.communityId, Number(event.target.value))
                     }
                     className="mt-4 w-full"
                   />
                   <div className="mt-2 flex items-center justify-between text-sm font-semibold">
                     <span>0</span>
-                    <span>{course.evaluation?.rating ?? 20}/20</span>
+                    <span>{communityProgress.evaluation?.rating ?? 20}/20</span>
                     <span>20</span>
                   </div>
                   <textarea
                     rows={4}
-                    value={draftFeedback[course.communityId] ?? ""}
+                    value={draftFeedback[communityProgress.communityId] ?? ""}
                     placeholder="Optional feedback"
                     className="mt-3 w-full rounded-xl border border-[color:var(--line)] bg-white px-3 py-2 text-sm outline-none"
                     onChange={(event) =>
                       setDraftFeedback((current) => ({
                         ...current,
-                        [course.communityId]: event.target.value,
+                        [communityProgress.communityId]: event.target.value,
                       }))
                     }
-                    onBlur={() => submitFeedback(course.communityId)}
+                    onBlur={() => submitFeedback(communityProgress.communityId)}
                   />
                 </div>
               </div>
@@ -255,7 +255,7 @@ export function ProgressWorkspace({
         </section>
       ) : null}
 
-      {teacherCourses.length > 0 ? (
+      {ownerCommunities.length > 0 ? (
         <section className="space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
@@ -269,41 +269,41 @@ export function ProgressWorkspace({
               <label className="block space-y-2">
                 <span className="text-sm font-semibold">Select a community</span>
                 <select
-                  value={selectedTeacherCourse?.communityId ?? ""}
+                  value={selectedOwnerCommunity?.communityId ?? ""}
                   onChange={(event) => {
                     const nextCourseId = event.target.value;
-                    const nextCourse = teacherCourses.find(
-                      (course) => course.communityId === nextCourseId,
+                    const nextCourse = ownerCommunities.find(
+                      (communityProgress) => communityProgress.communityId === nextCourseId,
                     );
-                    setSelectedTeacherCourseId(nextCourseId);
-                    setSelectedLearnerId(nextCourse?.members[0]?.memberId ?? "");
+                    setSelectedOwnerCommunityId(nextCourseId);
+                    setSelectedMemberId(nextCourse?.members[0]?.memberId ?? "");
                   }}
                   className="w-full rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none"
                 >
-                  {teacherCourses.map((course) => (
-                    <option key={course.communityId} value={course.communityId}>
-                      {course.title}
+                  {ownerCommunities.map((communityProgress) => (
+                    <option key={communityProgress.communityId} value={communityProgress.communityId}>
+                      {communityProgress.title}
                     </option>
                   ))}
                 </select>
               </label>
 
               <div className="mt-4 space-y-3">
-                {selectedTeacherCourse?.members.length ? (
-                  selectedTeacherCourse.members.map((learner) => (
+                {selectedOwnerCommunity?.members.length ? (
+                  selectedOwnerCommunity.members.map((member) => (
                     <button
-                      key={learner.memberId}
+                      key={member.memberId}
                       type="button"
-                      onClick={() => setSelectedLearnerId(learner.memberId)}
+                      onClick={() => setSelectedMemberId(member.memberId)}
                       className={`w-full rounded-[18px] border px-4 py-3 text-left ${
-                        learner.memberId === selectedLearner?.memberId
+                        member.memberId === selectedMember?.memberId
                           ? "border-[color:var(--foreground)] bg-[color:var(--surface-soft)]"
                           : "border-[color:var(--line)] bg-white"
                       }`}
                     >
-                      <p className="font-medium">{learner.memberName}</p>
+                      <p className="font-medium">{member.memberName}</p>
                       <p className="text-sm text-[color:var(--muted)]">
-                        {learner.completed}/{learner.totalLessons} completed
+                        {member.completed}/{member.totalClassroomItems} completed
                       </p>
                     </button>
                   ))
@@ -316,7 +316,7 @@ export function ProgressWorkspace({
             </article>
 
             <article className="rounded-[24px] border border-[color:var(--line)] bg-white p-5 shadow-sm">
-              {selectedLearner ? (
+              {selectedMember ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -324,11 +324,11 @@ export function ProgressWorkspace({
                         Selected member
                       </p>
                       <h3 className="text-xl font-semibold">
-                        {selectedLearner.memberName}
+                        {selectedMember.memberName}
                       </h3>
                     </div>
                     <span className="rounded-full bg-[color:var(--chip)] px-4 py-2 text-sm font-semibold">
-                      {selectedLearner.percentage}%
+                      {selectedMember.percentage}%
                     </span>
                   </div>
 
@@ -337,7 +337,7 @@ export function ProgressWorkspace({
                       Progress details
                     </p>
                     <p className="mt-1 text-2xl font-bold">
-                      {selectedLearner.completed}/{selectedLearner.totalLessons}
+                      {selectedMember.completed}/{selectedMember.totalClassroomItems}
                     </p>
                     <p className="text-sm text-[color:var(--muted)]">
                       classroom items completed in this community

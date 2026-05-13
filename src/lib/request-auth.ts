@@ -91,17 +91,3 @@ export async function hasActiveCommunityAccess(
 
   return membership?.status === "ACTIVE";
 }
-
-export async function getManagedCourse(
-  communityId: string,
-  user: SessionUser,
-): Promise<CommunityRecord | null> {
-  return getManagedCommunity(communityId, user);
-}
-
-export async function hasActiveCourseAccess(
-  communityId: string,
-  user: SessionUser,
-) {
-  return hasActiveCommunityAccess(communityId, user);
-}

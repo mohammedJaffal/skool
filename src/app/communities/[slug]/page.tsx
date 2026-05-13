@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCommunityBySlugOrCourse } from "@/lib/community-data";
+import { getCommunityBySlug } from "@/lib/community-data";
 
 export default async function CommunityEntryPage({
   params,
@@ -7,7 +7,7 @@ export default async function CommunityEntryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     redirect("/");

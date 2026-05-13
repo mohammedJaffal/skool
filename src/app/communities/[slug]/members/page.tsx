@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import {
-  getCommunityBySlugOrCourse,
+  getCommunityBySlug,
   getCommunityMembersPreview,
 } from "@/lib/community-data";
 
@@ -10,7 +10,7 @@ export default async function CommunityMembersPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const community = await getCommunityBySlugOrCourse(slug);
+  const community = await getCommunityBySlug(slug);
 
   if (!community) {
     notFound();

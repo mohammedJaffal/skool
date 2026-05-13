@@ -45,7 +45,8 @@ export default async function InvitationsPage() {
         title: community.title,
         description: community.description,
         classroomItemCount: community.classroomItemCount,
+        isFree: community.price === 0,
       }))}
-    />
+  />
   );
 }

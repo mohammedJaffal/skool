@@ -7,37 +7,38 @@ export async function POST(req: Request) {
 
   if (!session?.user) {
     return NextResponse.json(
-      { error: "Sign in to join this classroom." },
+      { error: "Sign in to join this community." },
       { status: 401 },
     );
   }
 
   const body = await req.json();
-  const { communityId } = body as { communityId: string };
+  const { communityId } = body as { communityId?: string };
+  const targetCommunityId = communityId;
 
-  if (!communityId) {
+  if (!targetCommunityId) {
     return NextResponse.json({ error: "communityId is required" }, { status: 400 });
   }
 
-  const course = await db.community.findUnique({
-    where: { id: communityId },
+  const community = await db.community.findUnique({
+    where: { id: targetCommunityId },
     select: { id: true, ownerId: true },
   });
 
-  if (!course) {
+  if (!community) {
     return NextResponse.json({
       success: true,
       message: "Enrollment confirmed!",
       enrollmentId: `enroll_${Date.now()}`,
-      communityId,
+      communityId: targetCommunityId,
       userId: session.user.id,
       enrolledAt: new Date().toISOString(),
     });
   }
 
-  if (course.ownerId === session.user.id) {
+  if (community.ownerId === session.user.id) {
     return NextResponse.json(
-      { error: "Teachers already own their courses." },
+      { error: "Owners already manage their communities." },
       { status: 400 },
     );
   }
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
   const existingMembership = await db.communityMembership.findUnique({
     where: {
       communityId_memberId: {
-        communityId,
+        communityId: targetCommunityId,
         memberId: session.user.id,
       },
     },
@@ -54,9 +55,9 @@ export async function POST(req: Request) {
   if (existingMembership?.status === "ACTIVE") {
     return NextResponse.json({
       success: true,
-      message: "You already have access to this course.",
+      message: "You already have access to this community.",
       enrollmentId: existingMembership.id,
-      communityId,
+      communityId: targetCommunityId,
       userId: session.user.id,
       enrolledAt: existingMembership.joinedAt.toISOString(),
     });
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
 
   const existingRequest = await db.communityJoinRequest.findFirst({
     where: {
-      communityId,
+      communityId: targetCommunityId,
       memberId: session.user.id,
     },
     orderBy: { createdAt: "desc" },
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
       })
     : await db.communityJoinRequest.create({
         data: {
-          communityId,
+          communityId: targetCommunityId,
           memberId: session.user.id,
           status: "PENDING",
         },
@@ -91,7 +92,7 @@ export async function POST(req: Request) {
     success: true,
     message: "Access request submitted.",
     enrollmentId: joinRequest.id,
-    communityId,
+    communityId: targetCommunityId,
     userId: session.user.id,
     enrolledAt: joinRequest.createdAt.toISOString(),
   });

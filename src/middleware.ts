@@ -6,8 +6,7 @@ const { auth } = NextAuth(authConfig);
 
 const protectedPrefixes = [
   "/dashboard/admin",
-  "/dashboard/deploy",
-  "/dashboard/teach",
+  "/dashboard/owned-communities",
   "/dashboard/invitations",
   "/dashboard/progress",
   "/dashboard/account",

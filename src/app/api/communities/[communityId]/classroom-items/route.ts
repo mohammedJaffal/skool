@@ -50,13 +50,16 @@ export async function POST(request: Request, { params }: Params) {
 
   const title = body?.title?.trim();
   const content = body?.content?.trim();
-  const contentType = body?.contentType?.trim() || "lesson";
+  const contentType =
+    body?.contentType?.trim() === "lesson"
+      ? "text"
+      : body?.contentType?.trim() || "text";
 
   if (!title || !content) {
     return jsonError("title and content are required.", 400);
   }
 
-  const lastLesson = await db.classroomItem.findFirst({
+  const lastClassroomItem = await db.classroomItem.findFirst({
     where: { communityId: communityId },
     orderBy: { position: "desc" },
     select: { position: true },
@@ -71,7 +74,7 @@ export async function POST(request: Request, { params }: Params) {
       position:
         typeof body?.position === "number" && body.position > 0
           ? body.position
-          : (lastLesson?.position ?? 0) + 1,
+        : (lastClassroomItem?.position ?? 0) + 1,
     },
   });
 

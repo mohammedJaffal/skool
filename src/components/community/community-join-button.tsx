@@ -46,7 +46,7 @@ export function CommunityJoinButton({
         href={`/auth/signin?callbackUrl=${encodeURIComponent(`/communities/${slug}/about`)}`}
         className={className}
       >
-        {isFree ? "Join group" : "Sign in to join"}
+        {isFree ? "Join community" : "Sign in to join"}
       </Link>
     );
   }
@@ -57,6 +57,11 @@ export function CommunityJoinButton({
         type="button"
         disabled={status === "loading" || status === "done"}
         onClick={async () => {
+          if (!isFree) {
+            router.push(`/dashboard/checkout?communityId=${communityId}`);
+            return;
+          }
+
           setStatus("loading");
           setError("");
 
@@ -84,9 +89,7 @@ export function CommunityJoinButton({
           ? "Joining..."
           : status === "done"
             ? "Opening..."
-            : isFree
-              ? "Join group"
-              : "Request access"}
+            : "Join community"}
       </button>
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>

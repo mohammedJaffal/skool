@@ -6,7 +6,8 @@ Examples:
 - `src/features/auth`
 - `src/features/admin`
 - `src/features/dashboard`
-- `src/features/courses`
+- `src/features/communities`
+- `src/features/classroom`
 
 Rule:
 - use git branches for teammate ownership

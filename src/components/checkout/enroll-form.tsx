@@ -4,23 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-type EnrollableCourse = {
+type EnrollableCommunity = {
   id: string;
   title: string;
   price: number;
-  instructor: string;
+  ownerName: string;
   duration: string;
   level: string;
-  lessons: { id: string }[];
+  classroomItems: { id: string }[];
 };
 
 type Status = "idle" | "loading" | "success" | "error";
 
 interface EnrollFormProps {
-  course: EnrollableCourse;
+  community: EnrollableCommunity;
 }
 
-export function EnrollForm({ course }: EnrollFormProps) {
+export function EnrollForm({ community }: EnrollFormProps) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
   const [enrollmentId, setEnrollmentId] = useState("");
@@ -33,10 +33,10 @@ export function EnrollForm({ course }: EnrollFormProps) {
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId: course.id }),
+        body: JSON.stringify({ communityId: community.id }),
       });
       if (res.status === 401) {
-        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/dashboard/checkout?courseId=${course.id}`)}`);
+        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/dashboard/checkout?communityId=${community.id}`)}`);
         return;
       }
       if (!res.ok) throw new Error();
@@ -61,10 +61,10 @@ export function EnrollForm({ course }: EnrollFormProps) {
           <span className="font-mono font-semibold">{enrollmentId}</span>
         </p>
         <Link
-          href="/dashboard/courses"
+          href="/dashboard/communities"
           className="mt-4 inline-block rounded-xl bg-[color:var(--brand)] px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
         >
-          Start learning →
+          Open community →
         </Link>
       </div>
     );
@@ -79,14 +79,14 @@ export function EnrollForm({ course }: EnrollFormProps) {
         </h2>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="font-medium">{course.title}</span>
-            <span className="font-semibold">${course.price}</span>
+            <span className="font-medium">{community.title}</span>
+            <span className="font-semibold">${community.price}</span>
           </div>
           {[
-            { label: "Instructor", value: course.instructor },
-            { label: "Duration", value: course.duration },
-            { label: "Level", value: course.level },
-            { label: "Lessons", value: String(course.lessons.length) },
+            { label: "Owner", value: community.ownerName },
+            { label: "Duration", value: community.duration },
+            { label: "Level", value: community.level },
+            { label: "Classroom items", value: String(community.classroomItems.length) },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between text-[color:var(--muted)]">
               <span>{label}</span>
@@ -95,7 +95,7 @@ export function EnrollForm({ course }: EnrollFormProps) {
           ))}
           <div className="flex justify-between border-t border-[color:var(--line)] pt-2 font-semibold">
             <span>Total</span>
-            <span>${course.price}</span>
+            <span>${community.price}</span>
           </div>
         </div>
       </div>
@@ -106,8 +106,8 @@ export function EnrollForm({ course }: EnrollFormProps) {
           Payment
         </h2>
         <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-600">
-          This is a demo access flow. For seeded real courses, this creates a
-          join request instead of a payment.
+          This is a demo access flow. For seeded real communities, this creates
+          a join request instead of a payment.
         </p>
         <div className="space-y-3">
           <input
@@ -140,9 +140,9 @@ export function EnrollForm({ course }: EnrollFormProps) {
       >
         {status === "loading"
           ? "Submitting..."
-          : course.price > 0
-            ? `Enroll — $${course.price}`
-            : "Request access"}
+          : community.price > 0
+            ? `Continue — $${community.price}`
+            : "Join community"}
       </button>
     </div>
   );

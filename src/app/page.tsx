@@ -29,7 +29,7 @@ export default async function HomePage() {
           <p className="mt-3 text-xl md:text-2xl">
             or{" "}
             <Link
-              href={signedIn ? "/dashboard/teach" : "/auth/signin?callbackUrl=/dashboard/teach"}
+              href={signedIn ? "/dashboard/owned-communities" : "/auth/signin?callbackUrl=/dashboard/owned-communities"}
               className="font-semibold text-[#3468ff]"
             >
               create your own
@@ -37,7 +37,7 @@ export default async function HomePage() {
           </p>
 
           <form
-            action="/dashboard/courses"
+            action="/dashboard/communities"
             method="GET"
             className="mx-auto mt-8 max-w-[650px] rounded-[8px] border border-[color:var(--line)] bg-white px-4 py-4 shadow-[0_3px_14px_rgba(0,0,0,0.08)]"
           >
@@ -45,7 +45,7 @@ export default async function HomePage() {
               <span className="text-3xl text-[color:var(--muted)]">⌕</span>
               <input
                 name="query"
-                placeholder="Search for a course"
+                placeholder="Search for a community"
                 className="w-full bg-transparent text-xl font-medium outline-none placeholder:text-[color:var(--muted)] md:text-3xl"
               />
               <button
@@ -107,7 +107,7 @@ export default async function HomePage() {
                 <div className="mt-5 border-t border-[color:var(--line)] pt-4 text-base text-[color:var(--foreground)]">
                   <p>{community.memberCount} Members</p>
                   <p className="mt-1 text-sm text-[color:var(--muted)]">
-                    {community.courseTitle} · {community.courseMeta}
+                    {community.classroomTitle} · {community.classroomMeta}
                   </p>
                 </div>
               </div>

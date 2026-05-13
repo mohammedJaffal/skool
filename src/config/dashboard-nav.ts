@@ -36,7 +36,7 @@ export const dashboardRoutes: DashboardRoute[] = [
     visibility: "all",
   },
   {
-    href: "/dashboard/teach",
+    href: "/dashboard/owned-communities",
     label: "Owned Communities",
     summary: "Owner workspace for communities, classroom items, and member access.",
     owner: "P1",
